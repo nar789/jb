@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <title>JB for Samsung google approval team.</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+        <meta content="Coderthemes" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/fav.ico">
+
+        <!-- third party css -->
+        <link href="assets/css/vendor/jquery-jvectormap-1.2.2.css" rel="stylesheet" type="text/css" />
+                <link href="assets/css/vendor/dataTables.bootstrap4.css" rel="stylesheet" type="text/css" />
+        <link href="assets/css/vendor/responsive.bootstrap4.css" rel="stylesheet" type="text/css" />
+        <link href="assets/css/vendor/buttons.bootstrap4.css" rel="stylesheet" type="text/css" />
+        <link href="assets/css/vendor/select.bootstrap4.css" rel="stylesheet" type="text/css" />
+        <!-- third party css end -->
+
+        <!-- App css -->
+        <!-- build:css -->
+        <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
+        <!-- endbuild -->
+
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+    </head>
+
+    <body>
+
+        <!-- Begin page -->
+        <div class="wrapper">
+
+            <!-- ========== Left Sidebar Start ========== -->
+            <div class="left-side-menu">
+
+                <div class="slimscroll-menu">
+
+                    <!-- LOGO -->
+                    <a href="index.html" class="logo text-center mb-4">
+                        <h1 style="color:white !important;"><i class="fas fa-box-open"></i>&nbsp;&nbsp;JB Concept ver.</h1>
+                    </a>
+
+                    <!--- Sidemenu -->
+                    <ul class="metismenu side-nav">
+
+                        <li class="side-nav-title side-nav-item">Navigation</li>
+
+                        <li class="side-nav-item">
+                            <a href="index.html" class="side-nav-link">
+                                <i class="mdi mdi-cellphone-iphone"></i>
+                                <span> 자산장부관리 </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="javascript: void(0);" class="side-nav-link">
+                                <i class="mdi mdi-cube-outline"></i>
+                                <span> 자산타입관리 </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="javascript: void(0);" class="side-nav-link">
+                                <i class="mdi mdi-account-multiple"></i>
+                                <span> 사용자관리 </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                           
+                        </li>
+
+                        <li class="side-nav-item">
+                            <a href="javascript: void(0);" class="side-nav-link">
+                                <i class="mdi mdi-cogs"></i>
+                                <span> 설정 </span>
+                                <span class="menu-arrow"></span>
+                            </a>
+                           
+                        </li>
+                    </ul>
+
+                    <!-- End Sidebar -->
+
+                    <div class="clearfix"></div>
+
+                </div>
+                <!-- Sidebar -left -->
+
+            </div>
+            <!-- Left Sidebar End -->
+
+            <!-- ============================================================== -->
+            <!-- Start Page Content here -->
+            <!-- ============================================================== -->
+
+            <div class="content-page">
+                <div class="content">
+
+                    <!-- Topbar Start -->
+                    <div class="navbar-custom">
+                        <ul class="list-unstyled topbar-right-menu float-right mb-0">
+
+                            <li class="dropdown notification-list">
+                                <a class="nav-link dropdown-toggle nav-user arrow-none mr-0" data-toggle="dropdown" href="#" role="button" aria-haspopup="false"
+                                    aria-expanded="false">
+                                    <img src="assets/images/users/avatar-1.jpg" alt="user-image" class="rounded">
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-animated profile-dropdown ">
+                                    <!-- item-->
+                                    <div class=" dropdown-header noti-title">
+                                        <h6 class="text-overflow m-0">이정헌님 환영합니다 !</h6>
+                                    </div>
+
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                        <i class="mdi mdi-account-circle"></i>
+                                        <span>내 계정</span>
+                                    </a>
+
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item notify-item">
+                                        <i class="mdi mdi-logout"></i>
+                                        <span>로그아웃</span>
+                                    </a>
+
+                                </div>
+                            </li>
+
+                        </ul>
+                        <div class="app-search">
+                            <form>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="모델명, 시리얼번호, 라벨">
+                                    <span class="mdi mdi-magnify"></span>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="submit">검색</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <button class="button-menu-mobile open-left disable-btn">
+                            <i class="mdi mdi-menu"></i>
+                        </button>
+                    </div>
+                    <!-- end Topbar -->
+                    
+                    <!-- Start Content-->
+                    <div class="container-fluid">
+
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <h4 class="page-title">자산장부관리</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="header-title">SM-F900U  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#signup-modal">데이터입력</button></h4>
+                                        <p class="text-muted font-14 mb-4">
+                                            VZW, TMB, SPR
+                                        </p>
+
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>Serial번호</th>
+                                                    <th>사업자</th>
+                                                    <th>라벨</th>
+                                                    <th>대여시간</th>
+                                                    <th>반납시간</th>
+                                                    <th>상태</th>
+                                                    <th>사용자</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+                                                <tr>
+                                                    <td>F900UA001</td>
+                                                    <td>VZW</td>
+                                                    <td>CTS1</td>
+                                                    <td>2019/04/22 09:10:23</td>
+                                                    <td>2019/04/23 13:10:25</td>
+                                                    <td>반납완료</td>
+                                                    <td>jh0511.lee(이정헌 님)</td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>F900UA002</td>
+                                                    <td>SPR</td>
+                                                    <td>CTS2</td>
+                                                    <td>2019/04/22 09:10:23</td>
+                                                    <td>2019/04/23 13:10:25</td>
+                                                    <td>반납완료</td>
+                                                    <td>jh0511.lee(이정헌 님)</td>
+                                                </tr>
+
+
+                                                <tr>
+                                                    <td>F900UA003</td>
+                                                    <td>SPR</td>
+                                                    <td>GTS1</td>
+                                                    <td>2019/04/22 09:10:23</td>
+                                                    <td>2019/04/23 13:10:25</td>
+                                                    <td>반납완료</td>
+                                                    <td>jh0511.lee(이정헌 님)</td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td>F900UA004</td>
+                                                    <td>VZW</td>
+                                                    <td>OCTO1</td>
+                                                    <td>2019/04/22 09:10:23</td>
+                                                    <td>2019/04/23 13:10:25</td>
+                                                    <td>반납완료</td>
+                                                    <td>jh0511.lee(이정헌 님)</td>
+                                                </tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+                          
+
+                        
+
+                       
+
+                    </div>
+                    <!-- container -->
+
+                </div>
+                <!-- content -->
+
+                <!-- Footer Start -->
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-8">
+                                Copyrightⓒ2019 Samsung Google Approval Team all rights reserved. JB designed by jh0511.lee
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-md-right footer-links d-none d-sm-block">
+                                    <a href="javascript: void(0);">About</a>
+                                    <a href="javascript: void(0);">Support</a>
+                                    <a href="javascript: void(0);">Contact Us</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+                <!-- end Footer -->
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+
+        </div>
+        <!-- END wrapper -->
+
+        <!-- Right Sidebar -->
+        <div class="right-bar">
+
+            <div class="rightbar-title">
+                <a href="javascript:void(0);" class="right-bar-toggle float-right">
+                    <i class="dripicons-cross noti-icon"></i>
+                </a>
+                <h5 class="m-0">Settings</h5>
+            </div>
+
+            <div class="slimscroll-menu">
+
+                <!-- Settings -->
+                <hr class="mt-0" />
+                <h5 class="pl-3">Basic Settings</h5>
+                <hr class="mb-0" />
+
+                <div class="p-3">
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="notifications-check" checked>
+                        <label class="custom-control-label" for="notifications-check">Notifications</label>
+                    </div>
+
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="api-access-check">
+                        <label class="custom-control-label" for="api-access-check">API Access</label>
+                    </div>
+
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="auto-updates-check" checked>
+                        <label class="custom-control-label" for="auto-updates-check">Auto Updates</label>
+                    </div>
+
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="online-status-check" checked>
+                        <label class="custom-control-label" for="online-status-check">Online Status</label>
+                    </div>
+
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="auto-payout-check">
+                        <label class="custom-control-label" for="auto-payout-check">Auto Payout</label>
+                    </div>
+
+                </div>
+
+
+                <!-- Timeline -->
+                <hr class="mt-0" />
+                <h5 class="pl-3">Recent Activity</h5>
+                <hr class="mb-0" />
+                <div class="pl-2 pr-2">
+                    <div class="timeline-alt">
+                        <div class="timeline-item">
+                            <i class="mdi mdi-upload bg-info-lighten text-info timeline-icon"></i>
+                            <div class="timeline-item-info">
+                                <a href="#" class="text-info font-weight-bold mb-1 d-block">You sold an item</a>
+                                <small>Paul Burgess just purchased “Hyper - Admin Dashboard”!</small>
+                                <p>
+                                    <small class="text-muted">5 minutes ago</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <i class="mdi mdi-airplane bg-primary-lighten text-primary timeline-icon"></i>
+                            <div class="timeline-item-info">
+                                <a href="#" class="text-primary font-weight-bold mb-1 d-block">Product on the Bootstrap Market</a>
+                                <small>Dave Gamache added
+                                    <span class="font-weight-bold">Admin Dashboard</span>
+                                </small>
+                                <p>
+                                    <small class="text-muted">30 minutes ago</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <i class="mdi mdi-microphone bg-info-lighten text-info timeline-icon"></i>
+                            <div class="timeline-item-info">
+                                <a href="#" class="text-info font-weight-bold mb-1 d-block">Robert Delaney</a>
+                                <small>Send you message
+                                    <span class="font-weight-bold">"Are you there?"</span>
+                                </small>
+                                <p>
+                                    <small class="text-muted">2 hours ago</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <i class="mdi mdi-upload bg-primary-lighten text-primary timeline-icon"></i>
+                            <div class="timeline-item-info">
+                                <a href="#" class="text-primary font-weight-bold mb-1 d-block">Audrey Tobey</a>
+                                <small>Uploaded a photo
+                                    <span class="font-weight-bold">"Error.jpg"</span>
+                                </small>
+                                <p>
+                                    <small class="text-muted">14 hours ago</small>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <i class="mdi mdi-upload bg-info-lighten text-info timeline-icon"></i>
+                            <div class="timeline-item-info">
+                                <a href="#" class="text-info font-weight-bold mb-1 d-block">You sold an item</a>
+                                <small>Paul Burgess just purchased “Hyper - Admin Dashboard”!</small>
+                                <p>
+                                    <small class="text-muted">1 day ago</small>
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Right-bar -->
+
+
+        <!-- Signup modal content -->
+                                        <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+    
+                                                    <div class="modal-body">
+                                                        <div class="text-center mt-2 mb-4">
+                                                            
+                                                                <span><h1>자산 데이터 입력</h1></span>
+                                                            
+                                                        </div>
+    
+                                                        <form class="pl-3 pr-3" action="#">
+
+                                                            <center>
+                                                            <div class="form-group">
+                                                               <input type="checkbox" id="switch1" checked data-switch="bool"/>
+                                                                <label for="switch1" data-on-label="대여" data-off-label="반납"></label>
+                                                            </div></center>
+    
+                                                            <div class="form-group">
+                                                                <label for="username">시리얼번호 입력</label>
+                                                                <input class="form-control" type="text" id="serial" required="" placeholder="Serial번호를 입력해주세요." value="F900UA005">
+                                                            </div>
+
+    
+                                                            
+    
+                                                            <div class="form-group text-center">
+                                                                <button class="btn btn-primary" id='ok'>데이터 입력</button>
+                                                            </div>
+    
+                                                        </form>
+    
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal-dialog -->
+                                        </div><!-- /.modal -->
+
+        <!-- bundle -->
+        <script src="assets/js/app.min.js"></script>
+
+          <!-- third party js -->
+        <script src="assets/js/vendor/jquery.dataTables.js"></script>
+        <script src="assets/js/vendor/dataTables.bootstrap4.js"></script>
+        <script src="assets/js/vendor/dataTables.responsive.min.js"></script>
+        <script src="assets/js/vendor/responsive.bootstrap4.min.js"></script>
+        <script src="assets/js/vendor/dataTables.buttons.min.js"></script>
+        <script src="assets/js/vendor/buttons.bootstrap4.min.js"></script>
+        <script src="assets/js/vendor/buttons.html5.min.js"></script>
+        <script src="assets/js/vendor/buttons.flash.min.js"></script>
+        <script src="assets/js/vendor/buttons.print.min.js"></script>
+        <script src="assets/js/vendor/dataTables.keyTable.min.js"></script>
+        <script src="assets/js/vendor/dataTables.select.min.js"></script>
+        <!-- third party js ends -->
+
+        <!-- third party js -->
+        <script src="assets/js/vendor/Chart.bundle.js"></script>
+        <script src="assets/js/vendor/jquery-jvectormap-1.2.2.min.js"></script>
+        <script src="assets/js/vendor/jquery-jvectormap-world-mill-en.js"></script>
+        <!-- third party js ends -->
+
+         <!-- demo app -->
+        <script src="assets/js/pages/demo.datatable-init.js"></script>
+        <!-- end demo js-->
+
+        <!-- demo app -->
+        <script src="assets/js/pages/demo.dashboard.js"></script>
+        <!-- end demo js-->
+        <script type="text/javascript">
+            $('#ok').click(()=>{
+                var s=$('#serial').val();
+
+                var html="<tr><td>"+s+"</td><td>TMB</td><td>OCTO1</td><td>2019/04/22 09:10:23</td><td></td><td>대여중</td><td>jh0511.lee(이정헌 님)</td></tr>";
+                $('#tbody').append(html);
+                $('#serial').val("");
+            });
+        </script>
+    </body>
+
+</html>
