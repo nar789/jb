@@ -1,0 +1,51 @@
+ <div id="join-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <h1>회원가입</h1>
+                </div>
+
+                <form class="pl-3 pr-3" action="#">
+
+                    <div class="form-group">
+                        <label for="username">이름</label>
+                        <input class="form-control" type="text" id="username" required="" placeholder="ex. 손흥민">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emailaddress">이메일</label>
+                        <input class="form-control" type="email" id="emailaddress" required="" placeholder="ex. son0708@samsung.com">
+                    </div>
+
+                    
+
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary" id='join-btn'>회원가입</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $('#join-btn').click(()=>{
+        var name=$('#username').val();
+        var email=$('#emailaddress').val();
+        $.post('/api/join',{
+            name:name,
+            email:email,
+        },(d,s)=>{
+            if(d==='success'){
+                jbalert('축하합니다!','회원가입이 완료되었습니다.');
+            }else{
+                jbalert('오류','회원가입이 실패했습니다. 관리자에게 문의하세요.');
+            }
+            $('#join-modal').modal('hide');
+        });
+    });
+</script>

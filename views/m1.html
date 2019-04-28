@@ -1,0 +1,125 @@
+<% include base-top.html %>
+
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <h4 class="page-title">자산장부관리</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="header-title">SM-F900U  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#signup-modal">데이터입력</button></h4>
+                                        <p class="text-muted font-14 mb-4">
+                                            VZW, TMB, SPR
+                                        </p>
+
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>사업자</th>
+                                                    <th>라벨</th>
+                                                    <th>대여</th>
+                                                    <th>반납</th>
+                                                    <th>상태</th>
+                                                    <th>사용자</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+                                                <tr>
+                                                    <td>F900UA001</td>
+                                                    <td>VZW</td>
+                                                    <td>CTS1</td>
+                                                    <td>2019/04/22 09:10:23</td>
+                                                    <td>2019/04/23 13:10:25</td>
+                                                    <td>반납완료</td>
+                                                    <td>jh0511.lee(이정헌 님)</td>
+                                                </tr>
+
+                                                     <tr>
+                                                    <td>F900UA001</td>
+                                                    <td>VZW</td>
+                                                    <td>CTS1</td>
+                                                    <td>2019/04/22 09:10:23</td>
+                                                    <td>2019/04/23 13:10:25</td>
+                                                    <td>반납완료</td>
+                                                    <td>jh0511.lee(이정헌 님)</td>
+                                                </tr>
+
+                                                     <tr>
+                                                    <td>F900UA001</td>
+                                                    <td>VZW</td>
+                                                    <td>CTS1</td>
+                                                    <td>2019/04/22 09:10:23</td>
+                                                    <td>2019/04/23 13:10:25</td>
+                                                    <td>반납완료</td>
+                                                    <td>jh0511.lee(이정헌 님)</td>
+                                                </tr>   
+
+                                             
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+                        
+        
+                        <div id="signup-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <div class="modal-body">
+                                        <div class="text-center mt-2 mb-4">
+                                                <span><h1>자산 데이터 입력</h1></span>
+                                        </div>
+
+                                        <form class="pl-3 pr-3" action="#">
+
+                                            <center>
+                                            <div class="form-group">
+                                               <input type="checkbox" id="switch1" checked data-switch="bool"/>
+                                                <label for="switch1" data-on-label="대여" data-off-label="반납"></label>
+                                            </div></center>
+
+                                            <div class="form-group">
+                                                <label for="username">시리얼번호 입력</label>
+                                                <input class="form-control" type="text" id="serial" required="" placeholder="Serial번호를 입력해주세요." value="F900UA005">
+                                            </div>
+
+
+                                            
+
+                                            <div class="form-group text-center">
+                                                <button class="btn btn-primary" id='ok'>데이터 입력</button>
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+
+        <% include base-bottom.html %>
+        <script type="text/javascript">
+            $('#ok').click(()=>{
+                var s=$('#serial').val();
+
+                var html="<tr><td>"+s+"</td><td>TMB</td><td>OCTO1</td><td>2019/04/22 09:10:23</td><td></td><td>대여중</td><td>jh0511.lee(이정헌 님)</td></tr>";
+                $('#tbody').append(html);
+                $('#serial').val("");
+            });
+        </script>

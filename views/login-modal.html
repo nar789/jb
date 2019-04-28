@@ -1,0 +1,54 @@
+ <div id="login-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <h1>로그인</h1>
+                </div>
+
+                
+
+                    <div class="form-group">
+                        <label for="emailaddress">이메일</label>
+                        <input class="form-control" type="email" id="login-emailaddress" required="" placeholder="ex. son0708@samsung.com" >
+                    </div>
+
+                    
+
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary" id='login-btn'>로그인</button>
+                    </div>
+
+                
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $('#login-btn').click(()=>{
+
+        var email=$('#login-emailaddress').val();
+        if(email===''){
+            $('#login-modal').modal('hide');
+            jbalert('로그인 실패','가입된 이메일을 찾을 수 없습니다.');
+            return;
+        }
+        $.post('/api/login',{
+            email:email,
+        },(d,s)=>{
+            if(d=='fail'){
+                $('#login-modal').modal('hide');
+                jbalert('로그인 실패','가입된 이메일을 찾을 수 없습니다.');
+            }else{
+                $('#login-modal').modal('hide');
+                jbalert('로그인 성공',d + ' 님 환영합니다.');      
+                setTimeout(()=>{
+                    location.replace('/');},1000);
+            }
+        });
+        
+    });
+</script>

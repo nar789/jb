@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+       <% include header.html %>
+       <script
+  src="https://code.jquery.com/jquery-3.4.0.min.js"
+  integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg="
+  crossorigin="anonymous"></script>
+    </head>
+
+    <body>
+        <script>var my={};</script>
+
+
+        <!-- Begin page -->
+        <div class="wrapper">
+
+
+           <% include join-modal.html %>
+
+           <% include login-modal.html %>
+
+           <% include left-side.html %>
+
+           <% include alert.html %>
+           <script>
+                function logined_state() {
+                  alert('hi');
+                  $('#pr-login-btn').css('display',"none");
+                  $('#pr-join-btn').css('display',"none");
+                }
+            </script>
+
+
+            <div class="content-page">
+                <div class="content">
+
+                    <!-- Topbar Start -->
+                    <div class="navbar-custom">
+                        <div class="app-search">
+                            
+
+                            <% if (user.logined) { %>
+                              <h5 style='display: inline-block;'><%=user.name%> 님 환영합니다.</h5>
+                              <button class="btn btn-primary" style="float:right;" onclick="javascript:location.href='/api/logout';">로그아웃</button>
+                            <% }else{ %>
+                              <button id=pr-login-btn class="btn btn-primary" style="float:right;" data-toggle="modal" data-target="#login-modal">로그인</button>
+                              <button id=pr-join-btn class="btn btn-primary mr-1" style="float:right;" data-toggle="modal" data-target="#join-modal">회원가입</button>
+                            <% } %>
+                            
+                        </div>
+                    </div>
+                    <!-- end Topbar -->
+                    
+                    <!-- Start Content-->
+                    <div class="container-fluid">
