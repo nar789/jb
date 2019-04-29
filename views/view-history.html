@@ -1,0 +1,76 @@
+<% include base-top.html %>
+      <!-- start page title -->
+      
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <a href="#"><h4 onclick="javascript:history.back();" class="page-title"><i class="mdi mdi-arrow-left-thick"></i>히스토리</h4></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h2><%=title%></h2>
+                                        <p class="text-muted font-14 mb-4">
+                                            <!--VZW, TMB, SPR///-->
+                                        </p>
+
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>이름</th>
+                                                    <th>이메일</th>
+                                                    <th>시간</th>
+                                                    <th>상태</th>
+                                                    <th>모델</th>
+                                                    <th>고유번호</th>
+                                                    <th>사업자</th>
+                                                    <th>라벨</th>
+
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+
+                                                <% for(var i=0;i<rows.length;i++) { %>
+                                                <tr>
+                                                    <td><%=(i+1)%></td>
+                                                    <td><a href='/view/history/user/<%=rows[i].user_id%>'><%=rows[i].name%></a></td>
+                                                    <td><a href='/view/history/user/<%=rows[i].user_id%>'><%=rows[i].email%></a></td>
+                                                    <td><%=rows[i].write_dt%></td>
+                                                    <td>
+                                                        <% if(rows[i].state=='rental') { %>
+                                                            <b style="color:#fa5c7c;">대여</b>
+                                                        <% } else { %>
+                                                            <b style="color:#0acf97;">반납</b>
+                                                        <% } %>
+                                                    </td>
+                                                    
+                                                    <td><%=rows[i].model%></td>
+                                                    <td><%=rows[i].nick%></td>
+                                                    <td><%=rows[i].sales%></td>
+                                                    <td><%=rows[i].label%></td>
+                                                    
+                                                </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+<% include base-bottom.html %>
+<script>
+
+    
+</script>

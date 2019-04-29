@@ -1,0 +1,84 @@
+<% include base-top.html %>
+      <!-- start page title -->
+      <% include addasset-modal.html %>
+      <% include updateasset-modal.html %>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <a href='/view/phone'><h4 class="page-title"><i class="mdi mdi-arrow-left-thick"></i>자산관리</h4></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="header-title">  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#addasset-modal">시료추가</button></h4>
+                                        <h2 style="display: inline-block;" class="mr-3"><%=model%></h2>
+                                        <h5 style="display: inline-block;">
+                                            <b style="color:#fa5c7c;">대여중 <%=rows2[0].rental_cnt%>대</b>
+                                            <b style="color:#0acf97;">대여가능 <%=rows2[0].return_cnt%>대</b>
+                                        </h5>
+                                        <p class="text-muted font-14 mb-4">
+                                            <!--VZW, TMB, SPR///-->
+                                        </p>
+
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델</th>
+                                                    <th>고유번호</th>
+                                                    <th>라벨</th>
+                                                    <th>사업자</th>
+                                                    <th>상태</th>
+                                                    <th>대여정보</th>
+                                                    <th>편집</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+
+                                                <% for(var i=0;i<rows.length;i++) { %>
+                                                <tr>
+                                                    <td><%=(i+1)%></td>
+                                                    <td><%=rows[i].model%></td>
+                                                    <td><%=rows[i].nick%></td>
+                                                    <td><%=rows[i].label%></td>
+                                                    <td><%=rows[i].sales%></td>
+                                                    <td>
+                                                        <% if(rows[i].state=='rental') { %>
+                                                            <b style="color:#fa5c7c;">대여중</b>
+                                                        <% } else { %>
+                                                            <b style="color:#0acf97;">대여가능</b>
+                                                        <% } %>
+                                                    </td>
+                                                    <td><a href='/view/history/<%=rows[i].id%>'><button class='btn btn-primary'>대여정보 보기</button></a></td>
+                                                    <td><button class='btn btn-info' onclick="assetupdate(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].nick%>','<%=rows[i].sales%>','<%=rows[i].label%>')">시료정보 편집</button></td>
+                                                </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+<% include base-bottom.html %>
+<script>
+
+    function assetupdate(id,model,nick,sales,label) {
+        $('#aid').val(id);
+        $('#update-model').val(model);
+        $('#update-nick').val(nick);
+        $('#update-sales').val(sales);
+        $('#update-label').val(label);
+        $('#updateasset-modal').modal('show');
+    }
+</script>

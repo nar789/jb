@@ -1,0 +1,163 @@
+<% include base-top.html %>
+      <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <a href="#"><h4 onclick="javascript:history.back();" class="page-title"><i class="mdi mdi-arrow-left-thick"></i>대여/ 반납</h4></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="mb-3">시료검색</h4>
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive" style="width:100% !important;">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델명</th>
+                                                    <th>사업자</th>
+                                                    <th>고유번호</th>
+                                                    <th>라벨</th>
+                                                    <th>선택</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+
+                                                <% for(var i=0;i<rows.length;i++) { %>
+                                                <tr>
+                                                    <td><%=(i+1)%></td>
+                                                    <td><%=rows[i].model%></td>
+                                                    <td><%=rows[i].sales%></td>
+                                                    <td><%=rows[i].nick%></td>
+                                                    <td><%=rows[i].label%></td>
+                                                    <td ><button id='sel-btn-<%=rows[i].id%>'class='btn btn-primary' onclick="sel(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].sales%>','<%=rows[i].nick%>','<%=rows[i].label%>')">선택</button></td>
+                                                </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                            
+
+                                    </div> <!-- end card-body-->
+                                </div> <!-- end card-->
+
+
+                                  <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="mb-3">선택된 시료</h4>
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive" style="width:100% !important;">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델명</th>
+                                                    <th>사업자</th>
+                                                    <th>고유번호</th>
+                                                    <th>라벨</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=select-tbody>
+                                            </tbody>
+                                        </table>
+                                            
+
+                                    </div> <!-- end card-body-->
+                                </div> <!-- end card-->
+                                <center class="mb-3">
+                                <button class="btn btn-primary btn-lg" onclick='req(1)'>대여 신청</button>
+                                <button class="btn btn-success btn-lg" onclick='req(2)'>반납 신청</button></center>
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+<% include base-bottom.html %>
+<script>
+    var ks=[];
+    var cnt=0;
+
+    function sel(i,m,s,n,l) {
+        var id='#sel-btn-'+i;
+        if($(id).html()=="선택"){
+            $(id).attr('class','btn btn-danger');
+            $(id).html("취소");
+
+                var k={};
+                k.idx=i;
+                k.sel='y';
+                k.model=m;
+                k.sales=s;
+                k.nick=n;
+                k.label=l;
+                ks.push(k);
+
+            sel_update(ks);
+        }else{
+            $(id).attr('class','btn btn-primary');
+            $(id).html("선택"); 
+            var ks2=[];
+            for(var j=0;j<ks.length;j++){
+                if(ks[j].idx!=i){
+                    ks2.push(ks[j]);
+                }
+            }
+            ks=[];
+            for(var j=0;j<ks2.length;j++)
+                ks.push(ks2[j]);
+            sel_update(ks);
+        }
+        
+    }
+
+    function sel_update(ks){
+        
+        var c=0;
+        $('#select-tbody').html("");
+        for(var i=0;i<ks.length;i++)
+        {
+            if(ks[i].idx>0)
+            {
+
+                c=c+1;
+                var row='<tr>';
+                row = row + 
+                '<td>' + c + '</td>' +
+                '<td>' + ks[i].model + '</td>' +
+                '<td>' + ks[i].sales + '</td>' +
+                '<td>' + ks[i].nick + '</td>' +
+                '<td>' + ks[i].label + '</td>' +
+                '</tr>';
+                $('#select-tbody').append(row);
+            }
+        }
+    }
+
+    function req(type){
+        var aids=[];
+        for(var i=0;i<ks.length;i++)
+        {   
+            aids.push(ks[i].idx);
+        }
+        $.post('/api/rental',{
+            aids:aids,
+            type:type,
+        },(d,s)=>{
+            if(d=="success")
+            {
+                jbalert('대여/반납신청','대여/반납 신청이 성공했습니다.');
+            }else{
+                jbalert('대여/반납신청','대여/반납 신청이 실패했습니다.');
+            }
+            setTimeout(()=>{location.href="/view/rental/pages/my"},1000);
+        });
+    }
+    
+</script>

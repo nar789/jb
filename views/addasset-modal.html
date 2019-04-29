@@ -1,0 +1,68 @@
+ <div id="addasset-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <h1>시료추가</h1>
+                </div>
+
+                
+
+                    <div class="form-group">
+                        <label for="model">모델 이름</label>
+                        <input class="form-control" type="text" id="input-model" required="" placeholder="ex. SM-T385" value="<%=model%>" >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">고유 번호</label>
+                        <input class="form-control" type="text" id="input-nick" required="" placeholder="ex. 시리얼번호, 바코드번호">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">사업자</label>
+                        <input class="form-control" type="text" id="input-sales" required="" placeholder="ex. skc">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">라벨</label>
+                        <input class="form-control" type="text" id="input-label" required="" placeholder="ex. CTS1">
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button class="btn btn-primary" id='add-btn'>시료추가</button>
+                    </div>
+
+                
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    $('#add-btn').click(()=>{
+        var m=$('#input-model').val();
+        var nick=$('#input-nick').val();
+        var sales=$('#input-sales').val();
+        var label=$('#input-label').val();
+
+        $.post('/api/phone/crud',{
+            cmd:'create',
+            model:m,
+            nick:nick,
+            sales:sales,
+            label:label,
+        },(d,s)=>{
+            $('#addasset-modal').modal('hide');
+            if(d=="success"){
+                jbalert('시료추가',"시료추가가 완료되었습니다.");
+            }else{
+                jbalert('시료추가',"시료추가가 실패했습니다.");
+            }
+            setTimeout(()=>{location.reload();},1000);
+
+        });
+    });
+ 
+</script>

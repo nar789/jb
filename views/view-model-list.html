@@ -1,0 +1,64 @@
+<% include base-top.html %>
+      <!-- start page title -->
+      <% include addasset-modal.html %>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <a href='/view/phone'><h4 class="page-title">자산관리</h4></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="header-title">  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#addasset-modal">시료추가</button></h4>
+                                        <h2>모델별 목록</h2>
+                                        <p class="text-muted font-14 mb-4">
+                                            <!--VZW, TMB, SPR///-->
+                                        </p>
+
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델</th>
+                                                    <th>총대수</th>
+                                                    <th>대여수</th>
+                                                    <th>남은대수</th>
+                                                    <th>자세히</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+
+                                                <% for(var i=0;i<rows.length;i++) { %>
+                                                <tr>
+                                                    <td><%=(i+1)%></td>
+                                                    <td><%=rows[i].model%></td>
+                                                    <td><%=rows[i].cnt%></td>
+                                                    <td><b style="color:#fa5c7c;"><%=rows[i].rental_cnt%></b></td>
+                                                    <td><b style="color:#0acf97;"><%=rows[i].return_cnt%></b></td>
+                                                    <td>
+                                                        <a href='/view/phone/<%=rows[i].model%>'><button class='btn btn-primary' >자세히 보기</button></a>
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+<% include base-bottom.html %>
+<script>
+
+    
+</script>

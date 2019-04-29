@@ -1,0 +1,109 @@
+<% include base-top.html %>
+      <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <a href="/view/rental/pages/my"><h4 class="page-title">장부관리</h4></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <a href='/view/request/rental'><button class='btn btn-success' style="float:right;">대여 / 반납</button></a>
+
+                                        <h2 class="mb-3">구글승인팀의 시료장부</h2>
+
+
+
+                                        <ul class="nav nav-pills bg-light nav-justified mb-3">
+                                            <li class="nav-item">
+                                                <a href="/view/rental/pages/all" class="nav-link rounded-0 <% if(menu=='all'){ %>active<% } %>">
+                                                    <i class="mdi mdi-home-variant d-lg-none d-block mr-1"></i>
+                                                    <span class="d-none d-lg-block">ALL</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="/view/rental/pages/my" class="nav-link rounded-0 <% if(menu=='my'){ %>active<% } %>">
+                                                    <i class="mdi mdi-account-circle d-lg-none d-block mr-1"></i>
+                                                    <span class="d-none d-lg-block">MY</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="#all" data-toggle="tab" aria-expanded="false" class="nav-link rounded-0">
+                                                    <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i>
+                                                    <span class="d-none d-lg-block">전략</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="#all" data-toggle="tab" aria-expanded="false" class="nav-link rounded-0">
+                                                    <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i>
+                                                    <span class="d-none d-lg-block">Tablet</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="#all" data-toggle="tab" aria-expanded="false" class="nav-link rounded-0">
+                                                    <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i>
+                                                    <span class="d-none d-lg-block">MASS</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="all">
+                                                <table id="datatable-buttons" class="table table-striped dt-responsive" style="width:100% !important;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>번호</th>
+                                                            <th>모델명</th>
+                                                            <th>라벨</th>
+                                                            <th>이름</th>
+                                                            <th>개수</th>
+                                                            <th>상태</th>
+                                                            <th>시간</th>
+                                                        </tr>
+                                                    </thead>
+                                                
+                                                
+                                                    <tbody id=tbody>
+
+                                                        <% for(var i=0;i<rows.length;i++) { %>
+                                                        <tr>
+                                                            <td><%=(i+1)%></td>
+                                                            <td><%=rows[i].model%></td>
+                                                            <td><%=rows[i].labels%></td>
+                                                            <td ><%=rows[i].name%></td>
+                                                            <td ><%=rows[i].cnt%></td>
+                                                            <td >
+                                                                <% if(rows[i].state=='rental') { %>
+                                                                    <b style="color:#fa5c7c;">대여</b>
+                                                                <% } else { %>
+                                                                    <b style="color:#0acf97;">반납</b>
+                                                                <% } %>
+                                                            </td>
+                                                            <td ><%=rows[i].write_dt%></td>
+                                                        </tr>
+                                                        <% } %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="tab-pane" id="settings1">
+                                                <p>Food truck quinoa dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim.</p>
+                                                <p class="mb-0">Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim.</p>
+                                            </div>
+                                        </div>
+
+                                    </div> <!-- end card-body-->
+                                </div> <!-- end card-->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+<% include base-bottom.html %>
+<script>
+
+    
+</script>

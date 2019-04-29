@@ -1,0 +1,92 @@
+ <div id="updateasset-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <h1>시료정보 편집</h1>
+                </div>
+
+                
+
+                    <div class="form-group">
+                        <label for="model">모델 이름</label>
+                        <input class="form-control" type="text" id="update-model" required="" placeholder="ex. SM-T385">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">고유 번호</label>
+                        <input class="form-control" type="text" id="update-nick" required="" placeholder="ex. 시리얼번호, 바코드번호">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">사업자</label>
+                        <input class="form-control" type="text" id="update-sales" required="" placeholder="ex. skc">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">라벨</label>
+                        <input class="form-control" type="text" id="update-label" required="" placeholder="ex. CTS1">
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button class="btn btn-info" id='update-btn'>시료정보 수정</button>
+                        <button class="btn btn-danger" id='del-btn'>시료정보 삭제</button>
+                    </div>
+
+                    <input type=hidden id=aid>
+
+                
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+
+    $('#del-btn').click(()=>{
+        var aid=$('#aid').val();
+        $.post('/api/phone/crud',{
+            cmd:'delete',
+            id:aid,
+        },(d,s)=>{
+            $('#updateasset-modal').modal('hide');
+            if(d=="success"){
+                jbalert('시료정보 삭제',"시료정보 삭제가 완료되었습니다.");
+            }else{
+                jbalert('시료정보 삭제',"시료정보 삭제가 실패했습니다.");
+            }
+            setTimeout(()=>{location.reload();},1000);
+
+        });
+
+    });
+
+    $('#update-btn').click(()=>{
+        var m=$('#update-model').val();
+        var nick=$('#update-nick').val();
+        var sales=$('#update-sales').val();
+        var label=$('#update-label').val();
+        var aid=$('#aid').val();
+
+        $.post('/api/phone/crud',{
+            cmd:'update',
+            id:aid,
+            model:m,
+            nick:nick,
+            sales:sales,
+            label:label,
+        },(d,s)=>{
+            $('#updateasset-modal').modal('hide');
+            if(d=="success"){
+                jbalert('시료정보 수정',"시료정보 수정이 완료되었습니다.");
+            }else{
+                jbalert('시료정보 수정',"시료정보 수정이 실패했습니다.");
+            }
+            setTimeout(()=>{location.reload();},1000);
+
+        });
+    });
+ 
+</script>
