@@ -16,14 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Current Database: `jb`
---
-
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `jb` /*!40100 DEFAULT CHARACTER SET utf8 */;
-
-USE `jb`;
-
---
 -- Table structure for table `page`
 --
 
@@ -64,7 +56,7 @@ CREATE TABLE `phone` (
   `nick` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   `label` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -73,7 +65,7 @@ CREATE TABLE `phone` (
 
 LOCK TABLES `phone` WRITE;
 /*!40000 ALTER TABLE `phone` DISABLE KEYS */;
-INSERT INTO `phone` VALUES (1,'sm-f900u','vzw','b123456,a123456','cts1'),(2,'sm-f900u','vzw','c123456,d123456','gts1'),(3,'sm-g975n','skc','e123456,f123456','cts1'),(4,'sm-g975n','ktc','g123456,h123456','gts3'),(5,'sm-g975n','ktc','k123456','gts2'),(6,'sm-g975n','luc','p1234567','gts2');
+INSERT INTO `phone` VALUES (1,'SM-F900U','VZW','b123456,a123456','CTS1'),(2,'SM-F900U','VZW','c123456,d123456','GTS1'),(3,'SM-G975N','SKC','e123456,f123456','CTS1'),(4,'SM-G975N','KTC','g123456,h123456','GTS3'),(5,'SM-G975N','KTC','k123456','GTS2'),(6,'SM-G975N','LUC','p1234567','GTS1'),(16,'SM-T725','SPR','1q2w3e4r','ETC1'),(17,'SM-T725','VZW','1q1q2b2b','CTS1');
 /*!40000 ALTER TABLE `phone` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -92,7 +84,7 @@ CREATE TABLE `rental` (
   `write_dt` datetime DEFAULT NULL,
   `state` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,7 +93,7 @@ CREATE TABLE `rental` (
 
 LOCK TABLES `rental` WRITE;
 /*!40000 ALTER TABLE `rental` DISABLE KEYS */;
-INSERT INTO `rental` VALUES (1,1,1,1,'2019-04-29 18:52:32','rental'),(2,1,3,1,'2019-04-29 18:52:47','rental'),(3,1,6,1,'2019-04-29 22:30:29','rental'),(4,1,6,2,'2019-04-29 23:33:48','return'),(5,1,2,2,'2019-04-30 00:02:37','rental'),(6,1,4,2,'2019-04-30 01:22:54','rental'),(7,1,5,2,'2019-04-30 01:22:54','rental'),(8,1,1,1,'2019-04-30 04:16:07','return'),(9,1,2,1,'2019-04-30 04:16:07','return'),(10,1,1,1,'2019-04-30 04:17:27','rental'),(11,1,4,1,'2019-04-30 04:19:25','return');
+INSERT INTO `rental` VALUES (1,1,1,1,'2019-04-29 18:52:32','rental'),(2,1,3,1,'2019-04-29 18:52:47','rental'),(3,1,6,1,'2019-04-29 22:30:29','rental'),(4,1,6,2,'2019-04-29 23:33:48','return'),(5,1,2,2,'2019-04-30 00:02:37','rental'),(6,1,4,2,'2019-04-30 01:22:54','rental'),(7,1,5,2,'2019-04-30 01:22:54','rental'),(8,1,1,1,'2019-04-30 04:16:07','return'),(9,1,2,1,'2019-04-30 04:16:07','return'),(10,1,1,1,'2019-04-30 04:17:27','rental'),(11,1,4,1,'2019-04-30 04:19:25','return'),(12,1,1,1,'2019-05-01 13:19:19','return'),(13,1,3,1,'2019-05-01 15:26:38','return'),(14,1,5,1,'2019-05-01 15:26:38','return'),(15,1,3,1,'2019-05-01 15:27:05','rental'),(16,1,1,1,'2019-05-01 15:27:05','rental'),(17,1,1,1,'2019-05-01 17:11:07','return'),(21,1,16,1,'2019-05-02 00:18:29','rental'),(22,1,17,1,'2019-05-02 00:18:58','rental'),(23,1,17,1,'2019-05-02 00:24:02','return'),(24,1,16,1,'2019-05-02 00:24:02','return');
 /*!40000 ALTER TABLE `rental` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,7 +164,7 @@ CREATE TABLE `user` (
   `ipaddr` varchar(255) DEFAULT NULL,
   `isdel` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,7 +173,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'이정헌','jh0511@samsung.com','',0,'','',0),(2,'손흥민','son0708@samsung.com','',0,'','',0);
+INSERT INTO `user` VALUES (1,'이정헌','jh0511.lee@samsung.com','',0,'','',0),(2,'손흥민','son0708@samsung.com','',0,'','',0);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -194,4 +186,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-30  4:32:21
+-- Dump completed on 2019-05-02  2:11:43
