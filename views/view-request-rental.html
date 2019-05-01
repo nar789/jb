@@ -24,6 +24,7 @@
                                                     <th>사업자</th>
                                                     <th>고유번호</th>
                                                     <th>라벨</th>
+                                                    <th>상태</th>
                                                     <th>선택</th>
                                                 </tr>
                                             </thead>
@@ -38,7 +39,14 @@
                                                     <td><%=rows[i].sales%></td>
                                                     <td><%=rows[i].nick%></td>
                                                     <td><%=rows[i].label%></td>
-                                                    <td ><button id='sel-btn-<%=rows[i].id%>'class='btn btn-primary' onclick="sel(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].sales%>','<%=rows[i].nick%>','<%=rows[i].label%>')">선택</button></td>
+                                                    <td >
+                                                        <% if(rows[i].state=='rental') { %>
+                                                            <b style="color:#fa5c7c;">대여중</b>
+                                                        <% } else { %>
+                                                            <b style="color:#0acf97;">대여가능</b>
+                                                        <% } %>
+                                                    </td>
+                                                    <td ><button id='sel-btn-<%=rows[i].id%>'class='btn btn-primary' onclick="sel(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].sales%>','<%=rows[i].nick%>','<%=rows[i].label%>','<%=rows[i].state%>')">선택</button></td>
                                                 </tr>
                                                 <% } %>
                                             </tbody>
@@ -62,6 +70,7 @@
                                                     <th>사업자</th>
                                                     <th>고유번호</th>
                                                     <th>라벨</th>
+                                                    <th>상태</th>
                                                 </tr>
                                             </thead>
                                         
@@ -84,7 +93,7 @@
     var ks=[];
     var cnt=0;
 
-    function sel(i,m,s,n,l) {
+    function sel(i,m,s,n,l,state) {
         var id='#sel-btn-'+i;
         if($(id).html()=="선택"){
             $(id).attr('class','btn btn-danger');
@@ -97,6 +106,7 @@
                 k.sales=s;
                 k.nick=n;
                 k.label=l;
+                k.state=state;
                 ks.push(k);
 
             sel_update(ks);
@@ -128,22 +138,31 @@
 
                 c=c+1;
                 var row='<tr>';
+                var state;
+                if(ks[i].state=='rental')state=`<b style="color:#fa5c7c;">대여중</b>`;
+                else state=`<b style="color:#0acf97;">대여가능</b>`;
                 row = row + 
                 '<td>' + c + '</td>' +
                 '<td>' + ks[i].model + '</td>' +
                 '<td>' + ks[i].sales + '</td>' +
                 '<td>' + ks[i].nick + '</td>' +
                 '<td>' + ks[i].label + '</td>' +
+                '<td>' + state + '</td>' +
                 '</tr>';
                 $('#select-tbody').append(row);
             }
         }
     }
 
-    function req(type){
+    function req(type){ //type 1:rental 2:return
         var aids=[];
         for(var i=0;i<ks.length;i++)
-        {   
+        {  
+            if((type==1 && ks[i].state=='rental') || (type==2 && ks[i].state=='return')) 
+            {
+                jbalert('대여/반납신청 실패','대여중인 기기를 대여하려고 하거나, 반납중인 기기를 반납하려고 합니다.');
+                return;
+            }
             aids.push(ks[i].idx);
         }
         $.post('/api/rental',{

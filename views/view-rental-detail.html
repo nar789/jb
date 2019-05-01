@@ -1,0 +1,66 @@
+<% include base-top.html %>
+      <!-- start page title -->
+      
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <a href='#'><h4 onclick="javascript:history.back();" class="page-title"><i class="mdi mdi-arrow-left-thick"></i>대여/반납 정보</h4></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="header-title">  <a href='/view/request/rental'><button class='btn btn-success btn-lg' style="float:right;">대여 / 반납</button></a></h4>
+                                        <h2 style="display: inline-block;" class="mr-3"><a href='/view/history/user/<%=rows[0].user_id%>'><%=rows[0].name%></a> 님의 대여/반납 정보</h2>
+                                        <p class="text-muted font-14 mb-4" style="display: inline-block;" onclick="javascript:jbalert('시간','<%=rows[0].write_dt%>')";>
+                                            <a href='#'><%=timeAgo.format(rows[0].write_dt)%></a>
+                                        </p>
+
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델</th>
+                                                    <th>고유번호</th>
+                                                    <th>라벨</th>
+                                                    <th>사업자</th>
+                                                    <th>상태</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+
+                                                <% for(var i=0;i<rows.length;i++) { %>
+                                                <tr>
+                                                    <td><%=(i+1)%></td>
+                                                    <td ><a href="/view/phone/<%=rows[i].model%>"><%=rows[i].model%></a></td>
+                                                    <td><a href="/view/history/<%=rows[i].asset_id%>"><%=rows[i].nick%></a></td>
+                                                    <td><a href="/view/history/<%=rows[i].asset_id%>"><%=rows[i].label%></a></td>
+                                                    <td><%=rows[i].sales%></td>
+                                                    <td>
+                                                        <% if(rows[i].state=='rental') { %>
+                                                            <b style="color:#fa5c7c;">대여처리</b>
+                                                        <% } else { %>
+                                                            <b style="color:#0acf97;">반납처리</b>
+                                                        <% } %>
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+<% include base-bottom.html %>
+<script>
+</script>

@@ -14,7 +14,7 @@
                                 <div class="card">
                                     <div class="card-body">
 
-                                        <a href='/view/request/rental'><button class='btn btn-success' style="float:right;">대여 / 반납</button></a>
+                                        <a href='/view/request/rental'><button class='btn btn-success btn-lg' style="float:right;">대여 / 반납</button></a>
 
                                         <h2 class="mb-3">구글승인팀의 시료장부</h2>
 
@@ -60,11 +60,13 @@
                                                         <tr>
                                                             <th>번호</th>
                                                             <th>모델명</th>
+                                                            <th>사업자</th>
                                                             <th>라벨</th>
                                                             <th>이름</th>
                                                             <th>개수</th>
                                                             <th>상태</th>
                                                             <th>시간</th>
+                                                            <th>자세히</th>
                                                         </tr>
                                                     </thead>
                                                 
@@ -74,7 +76,8 @@
                                                         <% for(var i=0;i<rows.length;i++) { %>
                                                         <tr>
                                                             <td><%=(i+1)%></td>
-                                                            <td><%=rows[i].model%></td>
+                                                            <td><%=rows[i].models%></td>
+                                                            <td><%=rows[i].saleses%></td>
                                                             <td><%=rows[i].labels%></td>
                                                             <td ><%=rows[i].name%></td>
                                                             <td ><%=rows[i].cnt%></td>
@@ -85,7 +88,10 @@
                                                                     <b style="color:#0acf97;">반납</b>
                                                                 <% } %>
                                                             </td>
-                                                            <td ><%=rows[i].write_dt%></td>
+                                                            <td onclick="javascript:jbalert('시간','<%=rows[i].write_dt%>');"><a href='#'><%=timeAgo.format(rows[i].write_dt)%></a></td>
+                                                            <td>
+                                                                <a href='/view/rental/detail/<%=rows[i].user_id%>/<%=rows[i].ts%>'><button class='btn btn-primary' >자세히 보기</button></a>
+                                                            </td>
                                                         </tr>
                                                         <% } %>
                                                     </tbody>

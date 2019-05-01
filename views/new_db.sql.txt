@@ -1,0 +1,63 @@
+기기별 /모든 모델 대여 상태
+select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+where phone.id=asset_id order by phone.id desc;
+
+
+
+기기별/ 특정 모델의 대여 상태
+select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+where phone.id=asset_id and phone.model='sm-g975n' order by label asc;
+
+
+모델별 / 모든 모델의 총 대수/대여개수/남은대수
+select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r where r.asset_id=p.id group by model;
+
+
+모델별/ 특정 모델 총대수/대여대수/남은대수
+
+select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r where r.asset_id=p.id and model='sm-f900u' group by model;
+
+
+
+(모델별 )모든 모델 대여 개수 
+select model,count(*) as cnt from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r where r.asset_id=p.id and state='rental' group by model;
+
+
+(시료별,기기별) 모든 대여상태와 시료 정보 표시.
+select p.*,r.state from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r 
+where r.asset_id=p.id order by model,label asc;
+
+(특정시간의 대여 모든 기기 정보)
+select r.*,u.*,p.* from rental r,user u,phone p where unix_timestamp(write_dt)=1556565367 and r.user_id=1 and r.asset_id=p.id and r.user_id=u.id;
+
+
+(장부 pages)
+대여정보별 사용자, 기기정보 표시
+select user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
+,group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc;
+
+
+ (장부 pages)
+특정 사용자의 대여정보별 사용자, 기기정보 표시
+select user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
+,group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ and email='jh0511@samsung.com'
+  group by write_dt order by write_dt desc;
+
+
+  시료검색페이지
+    - 시료별 대여 상태와 기기정보를 모델별, 라벨별로 오름차순 정렬하여 표시.
+  select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+where phone.id=asset_id order by model,label asc;
+
+
+
+
+**TEST QUERY**
+
+
+select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+where phone.id=asset_id order by model,label asc;
+

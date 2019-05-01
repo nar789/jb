@@ -1,32 +1,3 @@
-select phone.*,rental.state from phone,rental where rental.asset_id=phone.id group by phone.model having max(rental.write_dt)
-union
-select *,'return' as state from phone
-group by id having max(state);
-
-
-if (select phone.*,rental.state from phone,rental where rental.asset_id=phone.id group by phone.model having max(rental.write_dt)) then
-begin
-	select phone.*,rental.state from phone,rental where rental.asset_id=phone.id group by phone.model having max(rental.write_dt)
-end
-else
-begin
-	select *,'return' as state from phone	
-end
-end if
-
-
-select phone.*,rental.state from phone,rental where rental.asset_id=phone.id and phone.model='sm-f900u' group by phone.model having max(rental.write_dt) 
-union 
-select *,'return' as state from phone where phone.model='sm-f900u' and id not in (select phone.id from phone,rental where rental.asset_id=phone.id and phone.model='sm-f900u' group by phone.model having max(rental.write_dt))
-order by id asc;
-
-
-
-select model,count(*) as cnt from phone group by model;
-select model,count(*) as rental_cnt from rental,phone where rental.asset_id=phone.id and rental.state='rental' group by model;
-
-select A.model,A.cnt,B.rental_cnt,(A.cnt-B.rental_cnt) as return_cnt from (select model,count(*) as cnt from phone group by model) as A, (select model,count(*) as rental_cnt from rental,phone where rental.asset_id=phone.id and rental.state='rental' group by model) as B where A.model=B.model order by model asc;
-
 
 
 select phone.*,B.state from phone,(select * from rental order by write_dt desc) as B where B.asset_id=phone.id and phone.model='sm-g975n' group by phone.nick 
@@ -44,4 +15,12 @@ select A.model,A.cnt,B.rental_cnt,(A.cnt-B.rental_cnt) as return_cnt from (selec
 
 
 
-    select model,count(*) as rental_cnt from ( select A.* from (select * from rental order by write_dt desc) as A group by A.asset_id) as rental,phone where rental.asset_id=phone.id and rental.state='rental' group by model
+
+select rental.*,name,email from rental,user where rental.user_id=user.id and asset_id=6 order by write_dt desc;
+
+
+
+
+
+
+select user.*,rental.*,phone.*,count(*),group_concat(phone.label) as cnt from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc;

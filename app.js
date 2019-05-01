@@ -7,6 +7,12 @@ var config = require('./config.my');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 
+var TimeAgo = require('javascript-time-ago');
+var ko = require('javascript-time-ago/locale/ko');
+
+TimeAgo.addLocale(ko);
+const timeAgo=new TimeAgo('ko');
+
 
 
 app.set('view engine', 'ejs');
@@ -112,14 +118,12 @@ app.get('/view/phone/:model',function(req,res){
   	req.session.logined=false;
 
 
-  var query=`select phone.*,B.state from phone,(select * from rental order by write_dt desc) as B where B.asset_id=phone.id and phone.model='`+model+`' group by phone.nick 
-					union 
-					select *,'return' as state from phone where phone.model='`+model+`' and id not in (select phone.id from phone,(select * from rental order by write_dt desc) as B where B.asset_id=phone.id and phone.model='`+model+`' group by phone.nick)
-					order by id asc;`;
+  var query=`select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+				where phone.id=asset_id and phone.model='`+model+`' order by label asc;`;
 
-  var query2=`select A.model,A.cnt,B.rental_cnt,(A.cnt-B.rental_cnt) as return_cnt from (select model,count(*) as cnt from phone group by model) as A,
-   (select model,count(*) as rental_cnt from ( select A.* from (select * from rental order by write_dt desc) as A group by A.asset_id) as rental,phone where rental.asset_id=phone.id and rental.state='rental' group by model) as B
-    where A.model=B.model and A.model='`+model+`' order by model asc;`;
+  var query2=`select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt from phone p,(select asset_id,state from rental r where id=(select max(id) 
+  from rental group by asset_id having asset_id=r.asset_id)) r 
+  where r.asset_id=p.id and model='`+model+`' group by model;`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -153,9 +157,9 @@ app.get('/view/phone',function(req,res){
   	req.session.logined=false;
 
 
-  var query=`select A.model,A.cnt,B.rental_cnt,(A.cnt-B.rental_cnt) as return_cnt from (select model,count(*) as cnt from phone group by model) as A,
-   (select model,count(*) as rental_cnt from ( select A.* from (select * from rental order by write_dt desc) as A group by A.asset_id) as rental,phone where rental.asset_id=phone.id and rental.state='rental' group by model) as B
-    where A.model=B.model order by model asc;`;
+  var query=`select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt 
+  from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r 
+  where r.asset_id=p.id group by model;`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -175,6 +179,7 @@ app.get('/view/phone',function(req,res){
 app.post('/api/phone/crud',function(req,res){
 	var cmd=req.body.cmd;
 	var opt=req.body.opt;
+	/*
 	if(cmd=='read' && opt==1)
 	{
 		var model=req.body.model;
@@ -192,11 +197,12 @@ app.post('/api/phone/crud',function(req,res){
 		    else res.send('fail');
 		});	
 	    connection.end();
-	}else if(cmd=='create'){
-		var model=req.body.model.toLowerCase();
+	}else */
+	if(cmd=='create'){
+		var model=req.body.model.toUpperCase();
 		var nick=req.body.nick.toLowerCase();
-		var sales=req.body.sales.toLowerCase();
-		var label=req.body.label.toLowerCase();
+		var sales=req.body.sales.toUpperCase();
+		var label=req.body.label.toUpperCase();
 
 		var query=`insert into phone values(null,'`+model+`','`+sales+`','`+nick+`','`+label+`')`;
 		var connection = mysql.createConnection(config);
@@ -211,10 +217,10 @@ app.post('/api/phone/crud',function(req,res){
 
 	}else if(cmd=='update'){
 		var id=req.body.id;
-		var model=req.body.model.toLowerCase();
+		var model=req.body.model.toUpperCase();
 		var nick=req.body.nick.toLowerCase();
-		var sales=req.body.sales.toLowerCase();
-		var label=req.body.label.toLowerCase();
+		var sales=req.body.sales.toUpperCase();
+		var label=req.body.label.toUpperCase();
 		var query=`update phone set model='`+model+`', nick='`+nick+`', sales='`+sales+`', label='`+label+`' where id=`+id;
 		var connection = mysql.createConnection(config);
 	    connection.connect();
@@ -253,7 +259,7 @@ app.get('/view/history/:asset_id',function(req,res){
   var asset_id=req.params.asset_id;
 
 
-  var query=`select rental.*,phone.*,name,email from phone,rental,user where asset_id=phone.id and rental.user_id=user.id and asset_id=`+asset_id+` order by write_dt desc;`;
+  var query=`select rental.*,phone.*,name,email,nick from phone,rental,user where asset_id=phone.id and rental.user_id=user.id and asset_id=`+asset_id+` order by write_dt desc;`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -267,7 +273,7 @@ app.get('/view/history/:asset_id',function(req,res){
 	    	else {title = rows[0].model+' '+rows[0].label;
 			    	title=title.toUpperCase();
 			    }
-	    	res.render('view-history.html',{user:req.session,rows:rows,title:title});
+	    	res.render('view-history.html',{user:req.session,rows:rows,title:title,nick:'disp'});
 	    }
 	    else res.send('fail');
 	});	
@@ -301,7 +307,7 @@ app.get('/view/history/user/:user_id',function(req,res){
 	    	else {title = rows[0].name+' '+rows[0].email;
 			    	title=title.toUpperCase();
 			    }
-	    	res.render('view-history.html',{user:req.session,rows:rows,title:title});
+	    	res.render('view-history.html',{user:req.session,rows:rows,title:title,nick:'nope'});
 	    }
 	    else res.send('fail');
 	});	
@@ -318,13 +324,17 @@ app.get('/view/rental/pages/all',function(req,res){
   	req.session.logined=false;
 
 
-  var query=`select user.*,rental.*,phone.*,count(*) as cnt,group_concat(phone.label) as labels from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc;`;
+  var query=`select user.*,rental.*,phone.*,count(*) as cnt,
+group_concat(distinct(phone.label)) as labels,
+unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
+group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc;`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
 	connection.query(query, function(err, rows, fields) {
 	    if (!err){
-	    	res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'all'});
+	    	res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'all',timeAgo:timeAgo});
 	    }
 	    else res.send('fail');
 	});	
@@ -338,14 +348,18 @@ app.get('/view/rental/pages/my',function(req,res){
   if(req.session===undefined)
   	req.session.logined=false;
 
-  var query2=`select user.*,rental.*,phone.*,count(*) as cnt,group_concat(phone.label) as labels from user,rental,phone where user_id=user.id and asset_id=phone.id and email='`+req.session.email+`' group by write_dt order by write_dt desc;`;
+  var query2=`select user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
+,group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ and email='`+req.session.email+`'
+  group by write_dt order by write_dt desc;`;
 
 	
 	var connection2 = mysql.createConnection(config);
 	connection2.connect();
 	connection2.query(query2, function(err, rows, fields) {
 		if (!err){
-			res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'my'});
+			res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'my',timeAgo:timeAgo});
 		}
 		else res.send('fail');
 	});
@@ -362,7 +376,8 @@ app.get('/view/request/rental',function(req,res){
   	req.session.logined=false;
 
 
-  var query=`select * from phone`;
+  var query=`select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+where phone.id=asset_id order by model,label asc;`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -401,6 +416,27 @@ app.post('/api/rental',function(req,res){
 	connection.query(query, function(err, rows, fields) {
 	    if (!err){
 	    	res.send('success');
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
+
+app.get('/view/rental/detail/:userid/:timestamp',function(req,res){
+
+	if(req.session===undefined)
+  	req.session.logined=false;
+
+	var ts=req.params.timestamp;
+	var uid=req.params.userid;
+	var query=`select r.*,u.*,p.* from rental r,user u,phone p where unix_timestamp(write_dt)=`+ts+` and r.user_id=`+uid+` and r.asset_id=p.id and r.user_id=u.id;`;
+
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.render('view-rental-detail.html',{user:req.session,rows:rows,timeAgo:timeAgo});
 	    }
 	    else res.send('fail');
 	});	
