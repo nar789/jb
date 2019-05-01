@@ -45,7 +45,8 @@
 
 <script>
 
-    $('#del-btn').click(()=>{
+
+    function asset_delete_ok(argument) {
         var aid=$('#aid').val();
         $.post('/api/phone/crud',{
             cmd:'delete',
@@ -57,10 +58,14 @@
             }else{
                 jbalert('시료정보 삭제',"시료정보 삭제가 실패했습니다.");
             }
-            setTimeout(()=>{location.reload();},1000);
+            setTimeout(()=>{location.replace('/view/phone')},1000);
 
         });
+    }
 
+    $('#del-btn').click(()=>{
+        $('#updateasset-modal').modal('hide');
+        confirm("시료정보 삭제","시료정보를 정말 삭제하시겠습니까?",asset_delete_ok);
     });
 
     $('#update-btn').click(()=>{

@@ -39,10 +39,46 @@ app.get('/intro',function(req,res) {
 
 app.get('/',function(req,res){
 	console.log(req.session);
-  if(req.session===undefined)
-  	req.session.logined=false;
+    if(req.session===undefined)
+    	req.session.logined=false;
+
+  	var query=`select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, 
+  	count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt 
+  	from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id 
+  	having asset_id=r.asset_id)) r where r.asset_id=p.id group by model;`;
+  	var query2='select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id group by asset_id;';
+  	var query3='select count(*) as cnt,date_format(write_dt,"%m월%d일") as d from rental group by date(write_dt);';
+  	var connection = mysql.createConnection(config);
+  	connection.connect();
+  	connection.query(query, function(err, rows, fields) {
+	  if (!err){
+
+	  		
+	  		var connection2 = mysql.createConnection(config);
+		  	connection2.connect();
+		  	connection2.query(query2, function(err, rows2, fields) {
+			  if (!err){
+
+			  			var connection3 = mysql.createConnection(config);
+					  	connection3.connect();
+					  	connection3.query(query3, function(err, rows3, fields) {
+					  		if (!err){
+	  								res.render('index.html',{user:req.session,rows:rows,rows2:rows2,rows3:rows3});
+	  						}else res.send('fail');
+	  					});
+	  					connection3.end();
+
+
+	  			}else res.send('fail');
+	  		});
+	  		connection2.end();
+
+
+	  }
+	  else res.send('fail');
+	});
+  connection.end();
   	
-  	res.render('index.html',{user:req.session});
 });
 
 app.get('/base',function(req,res){
@@ -65,6 +101,40 @@ app.post('/api/join',function(req,res){
   var connection = mysql.createConnection(config);
   connection.connect();
   connection.query('insert into user values(null,\''+name+'\',\''+email+'\',\'\',0,\'\',\'\',0)', function(err, rows, fields) {
+	  if (!err) res.send('success');
+	  else res.send('fail');
+	});
+  connection.end();
+});
+
+app.post('/api/user/update',function(req,res){
+  //console.log(req.body.name +' '+req.body.email);
+  var name=req.body.name;
+  var email=req.body.email;
+  var uid=req.body.uid;
+
+  var query=`update user set name='`+name+`', email='`+email+`' where id=`+uid;
+
+
+  var connection = mysql.createConnection(config);
+  connection.connect();
+  connection.query(query, function(err, rows, fields) {
+	  if (!err) res.send('success');
+	  else res.send('fail');
+	});
+  connection.end();
+  
+});
+
+app.post('/api/user/delete',function(req,res){
+  //console.log(req.body.name +' '+req.body.email);
+  var uid=req.body.uid;
+
+  var query=`delete from user where id=`+uid;
+
+  var connection = mysql.createConnection(config);
+  connection.connect();
+  connection.query(query, function(err, rows, fields) {
 	  if (!err) res.send('success');
 	  else res.send('fail');
 	});
@@ -209,7 +279,16 @@ app.post('/api/phone/crud',function(req,res){
 	    connection.connect();
 	    connection.query(query, function(err, rows, fields) {
 		    if (!err){
-		    	res.send('success');
+
+		    	var query2=`insert into rental values(null,1,`+rows.insertId+`,`+req.session.userid+`,now(),'rental')`;
+		    	var connection2 = mysql.createConnection(config);
+	    		connection2.connect();
+		    	connection2.query(query2, function(err, rows, fields) {
+		    		if (!err){
+		    			res.send('success');
+		    		}else res.send('fail');
+		    	});
+		    	connection2.end();
 		    }
 		    else res.send('fail');
 		});	
@@ -443,6 +522,26 @@ app.get('/view/rental/detail/:userid/:timestamp',function(req,res){
 	connection.end();
 });
 
+
+app.get('/view/user',function(req,res){
+
+	if(req.session===undefined)
+	  	req.session.logined=false;
+
+
+	  var query=`select * from user`;
+
+	  var connection = mysql.createConnection(config);
+		connection.connect();
+		connection.query(query, function(err, rows, fields) {
+		    if (!err){
+		    	res.render('view-user-list.html',{user:req.session,rows:rows});
+		    }
+		    else res.send('fail');
+		});	
+		connection.end();
+
+});
 
 
 

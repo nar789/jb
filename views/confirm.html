@@ -1,0 +1,37 @@
+ <div class="modal fade" id="confirm-modal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="confirm-title">Small modal</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body" id='confirm-content'>
+            </div>
+            
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<button  type="button" class="btn btn-success" data-toggle="modal" data-target="#confirm-modal" id=confirm-btn style="display: none;">confirm</button>
+
+<script>
+    var confirm_cb;
+    function confirm(title,content,callback){
+        var btn=`<center class="mt-3">
+                <button class="btn btn-outline-primary" onclick="confirm_cancel()">취소</button>
+                <button class="btn btn-danger" onclick="confirm_del()">삭제</button>
+            </center>`;
+        $('#confirm-title').html(title);
+        $('#confirm-content').html(content+btn);
+        $('#confirm-btn').click();
+        confirm_cb=callback;
+    }
+    function confirm_del(){
+        $('#confirm-modal').modal('hide');
+        confirm_cb();
+    }
+    function confirm_cancel(){
+        $('#confirm-modal').modal('hide');
+    }
+</script>

@@ -1,0 +1,79 @@
+ <div id="user-update-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <h1>회원정보수정</h1>
+                </div>
+
+                <form class="pl-3 pr-3" action="#">
+
+                    <div class="form-group">
+                        <label for="update-username">이름</label>
+                        <input class="form-control" type="text" id="update-username" required="" placeholder="ex. 손흥민">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="update-emailaddress">이메일</label>
+                        <input class="form-control" type="email" id="update-emailaddress" required="" placeholder="ex. son0708@samsung.com">
+                    </div>
+
+                    <input type=hidden id=update-uid>
+
+                    
+
+                    <div class="form-group text-center">
+                        <button class="btn btn-success" id='update-btn'>정보수정</button>
+                        <button class="btn btn-danger" id='delete-btn'>회원탈퇴</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+
+    $('#update-btn').click(()=>{
+        var name=$('#update-username').val();
+        var email=$('#update-emailaddress').val();
+        var uid=$('#update-uid').val();
+        $.post('/api/user/update',{
+            name:name,
+            email:email,
+            uid:uid,
+        },(d,s)=>{
+            if(d==='success'){
+                jbalert('축하합니다!','회원정보 수정이 완료되었습니다.');
+            }else{
+                jbalert('오류','회원정보 수정이 실패했습니다. 관리자에게 문의하세요.');
+            }
+            $('#user-update-modal').modal('hide');
+            setTimeout(()=>{location.replace('/view/user?#');},1000);
+        });
+    });
+
+
+    $('#delete-btn').click(()=>{
+        $('#user-update-modal').modal('hide');
+        confirm("회원탈퇴","회원정보를 정말 삭제하시겠습니까?",user_delete_ok);
+    });
+
+    function user_delete_ok() {
+        var uid=$('#update-uid').val();
+        $.post('/api/user/delete',{
+            uid:uid,
+        },(d,s)=>{
+            if(d==='success'){
+                jbalert('회원탈퇴','회원탈퇴가 완료되었습니다.');
+                location.replace('/api/logout');
+            }else{
+                jbalert('오류','회원탈퇴가 실패했습니다. 관리자에게 문의하세요.');
+            }
+            $('#user-update-modal').modal('hide');
+        });
+    }
+</script>

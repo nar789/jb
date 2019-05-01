@@ -1,0 +1,65 @@
+<% include base-top.html %>
+      <!-- start page title -->
+      <% include user-update-modal.html %>
+      
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <a href="javascript:void(0);"><h4 class="page-title">사용자관리</h4></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                         <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h2>사용자관리</h2>
+                                        <p class="text-muted font-14 mb-4">
+                                        </p>
+
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>이름</th>
+                                                    <th>이메일</th>
+                                                    <th>사용자편집</th>
+                                                    <th>대여내역</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+
+                                                <% for(var i=0;i<rows.length;i++) { %>
+                                                <tr>
+                                                    <td><%=(i+1)%></td>
+                                                    <td><%=rows[i].name%></td>
+                                                    <td><%=rows[i].email%></td>
+                                                    <td><button class='btn btn-primary' id='data-input' onclick="edit_user_btn_click(<%=rows[i].id%>,'<%=rows[i].name%>','<%=rows[i].email%>')">사용자편집</button></td>
+                                                    <td><a href='/view/history/user/<%=rows[i].id%>'><button class='btn btn-primary' >대여내역</button></a></td>
+                                                </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+                                        
+                                    </div> <!-- end card body-->
+                                </div> <!-- end card -->
+                            </div><!-- end col-->
+                        </div>
+                        <!-- end row-->
+<% include base-bottom.html %>
+<script>
+    function edit_user_btn_click(uid,n,e) {
+        $('#update-username').val(n);
+        $('#update-emailaddress').val(e);
+        $('#update-uid').val(uid);
+
+        $('#user-update-modal').modal('show');
+    }
+    
+</script>

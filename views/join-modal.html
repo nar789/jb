@@ -36,6 +36,11 @@
     $('#join-btn').click(()=>{
         var name=$('#username').val();
         var email=$('#emailaddress').val();
+        if(name==='' || email==='' || name===undefined || email===undefined){
+            $('#join-modal').modal('hide');
+            jbalert('오류','회원가입이 실패했습니다. 관리자에게 문의하세요.');
+            return;
+        }
         $.post('/api/join',{
             name:name,
             email:email,

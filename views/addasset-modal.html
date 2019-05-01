@@ -47,6 +47,12 @@
         var sales=$('#input-sales').val();
         var label=$('#input-label').val();
 
+        if(m=='' || nick=="" || sales=="" || label==""){
+            $('#addasset-modal').modal('hide');
+            jbalert('시료추가',"시료추가가 실패했습니다.");
+            return;
+        }
+
         $.post('/api/phone/crud',{
             cmd:'create',
             model:m,
