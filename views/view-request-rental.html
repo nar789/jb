@@ -11,6 +11,37 @@
 
                          <div class="row">
                             <div class="col-12">
+
+                                <div class="card">
+                                    <div class="card-body">
+
+                                        <h4 class="mb-3">선택된 시료</h4>
+
+                                        <table id="datatable-buttons" class="table table-striped dt-responsive" style="width:100% !important;">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델명</th>
+                                                    <th>사업자</th>
+                                                    <th>고유번호</th>
+                                                    <th>라벨</th>
+                                                    <th>상태</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=select-tbody>
+                                            </tbody>
+                                        </table>
+                                            
+
+                                    </div> <!-- end card-body-->
+                                </div> <!-- end card-->
+                                <center class="mb-3">
+                                <button class="btn btn-primary btn-lg" onclick='req(1)'>대여 신청</button>
+                                <button class="btn btn-success btn-lg" onclick='req(2)'>반납 신청</button></center>
+
+                                
                                 <div class="card">
                                     <div class="card-body">
 
@@ -57,34 +88,7 @@
                                 </div> <!-- end card-->
 
 
-                                  <div class="card">
-                                    <div class="card-body">
-
-                                        <h4 class="mb-3">선택된 시료</h4>
-
-                                        <table id="datatable-buttons" class="table table-striped dt-responsive" style="width:100% !important;">
-                                            <thead>
-                                                <tr>
-                                                    <th>번호</th>
-                                                    <th>모델명</th>
-                                                    <th>사업자</th>
-                                                    <th>고유번호</th>
-                                                    <th>라벨</th>
-                                                    <th>상태</th>
-                                                </tr>
-                                            </thead>
-                                        
-                                        
-                                            <tbody id=select-tbody>
-                                            </tbody>
-                                        </table>
-                                            
-
-                                    </div> <!-- end card-body-->
-                                </div> <!-- end card-->
-                                <center class="mb-3">
-                                <button class="btn btn-primary btn-lg" onclick='req(1)'>대여 신청</button>
-                                <button class="btn btn-success btn-lg" onclick='req(2)'>반납 신청</button></center>
+                                  
                             </div><!-- end col-->
                         </div>
                         <!-- end row-->
