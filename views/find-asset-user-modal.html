@@ -1,0 +1,61 @@
+ <div id="find-asset-user-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                 <h4 class="mb-3">시료검색</h4>
+
+                                        <table id="datatable-buttons3" class="table table-striped dt-responsive" style="width:100% !important;">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델명</th>
+                                                    <th>사업자</th>
+                                                    <th>고유번호</th>
+                                                    <th>라벨</th>
+                                                    <th>상태</th>
+                                                    <th>선택</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody-find-asset-user>
+                                            </tbody>
+                                        </table>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    function asset_user_init(r) {
+        var c='';
+        for(var i=0;i<r.length;i++)
+        {
+            var num=i+1;
+            c=c+`<tr>
+                    <td>`+num+`</td>
+                    <td>`+r[i].model+`</td>
+                    <td>`+r[i].sales+`</td>
+                    <td>`+r[i].nick+`</td>
+                    <td>`+r[i].label+`</td>
+                    <td >`;
+                        if(r[i].state=='rental') {
+                            c=c+`<b style="color:#fa5c7c;">대여중</b>`;
+                        } else {
+                            c=c+`<b style="color:#0acf97;">대여가능</b>`;
+                        }
+                        
+                    c=c+`</td>
+                    <td >
+                    `;
+                    c=c+`<button id='sel-user-btn-`+r[i].id+`' class='btn btn-primary' onclick="sel(`+r[i].id+`,'`+r[i].model+`','`+r[i].sales+`','`+r[i].nick+`','`+r[i].label+`','`+r[i].state+`')">선택</button>`;
+                    c=c+`
+                    </td>
+                  </tr>`;
+        }
+        $('#tbody-find-asset-user').html(c);
+    }
+ 
+</script>

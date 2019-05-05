@@ -1,4 +1,7 @@
 <% include base-top.html %>
+<% include request-rental-modal.html %>
+<% include barcode-modal.html %>
+<% include find-asset-user-modal.html %>
       <!-- start page title -->
                         <div class="row">
                             <div class="col-12">
@@ -16,10 +19,10 @@
                                     <div class="card-body">
 
                                         <h4 class="mb-3">선택된 시료<br><br>
-                                        <button class="btn btn-outline-info">시료검색</button>
-                                        <button class="btn btn-outline-info">바코드 | 시리얼번호 | 라벨입력</button>
-                                        <button class="btn btn-outline-success">내가 대여한 시료</button>
-                                        <button class="btn btn-outline-success">내가 반납한 시료</button>
+                                        <button class="btn btn-outline-info" data-toggle="modal" data-target="#request-rental-modal">시료검색</button>
+                                        <button class="btn btn-outline-info" id=barcode_btn>바코드 | 시리얼번호 | 라벨입력</button>
+                                        <button class="btn btn-outline-success" onclick="myrental('rental')">내가 대여한 시료</button>
+                                        <button class="btn btn-outline-success" onclick="myrental('return')">내가 반납한 시료</button>
                                         <button class="btn btn-outline-dark">전략</button>
                                         <button class="btn btn-outline-dark">MASS</button>
                                         <button class="btn btn-outline-dark">Tablet</button>
@@ -38,6 +41,7 @@
                                                     <th>고유번호</th>
                                                     <th>라벨</th>
                                                     <th>상태</th>
+                                                    <th>취소</th>
                                                 </tr>
                                             </thead>
                                         
@@ -53,53 +57,6 @@
                                 <button class="btn btn-primary btn-lg" onclick='req(1)'>대여 신청</button>
                                 <button class="btn btn-success btn-lg" onclick='req(2)'>반납 신청</button></center>
 
-                                
-                                <div class="card">
-                                    <div class="card-body">
-
-                                        <h4 class="mb-3">시료검색</h4>
-
-                                        <table id="datatable-buttons2" class="table table-striped dt-responsive" style="width:100% !important;">
-                                            <thead>
-                                                <tr>
-                                                    <th>번호</th>
-                                                    <th>모델명</th>
-                                                    <th>사업자</th>
-                                                    <th>고유번호</th>
-                                                    <th>라벨</th>
-                                                    <th>상태</th>
-                                                    <th>선택</th>
-                                                </tr>
-                                            </thead>
-                                        
-                                        
-                                            <tbody id=tbody>
-
-                                                <% for(var i=0;i<rows.length;i++) { %>
-                                                <tr>
-                                                    <td><%=(i+1)%></td>
-                                                    <td><%=rows[i].model%></td>
-                                                    <td><%=rows[i].sales%></td>
-                                                    <td><%=rows[i].nick%></td>
-                                                    <td><%=rows[i].label%></td>
-                                                    <td >
-                                                        <% if(rows[i].state=='rental') { %>
-                                                            <b style="color:#fa5c7c;">대여중</b>
-                                                        <% } else { %>
-                                                            <b style="color:#0acf97;">대여가능</b>
-                                                        <% } %>
-                                                    </td>
-                                                    <td ><button id='sel-btn-<%=rows[i].id%>'class='btn btn-primary' onclick="sel(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].sales%>','<%=rows[i].nick%>','<%=rows[i].label%>','<%=rows[i].state%>')">선택</button></td>
-                                                </tr>
-                                                <% } %>
-                                            </tbody>
-                                        </table>
-                                            
-
-                                    </div> <!-- end card-body-->
-                                </div> <!-- end card-->
-
-
                                   
                             </div><!-- end col-->
                         </div>
@@ -108,6 +65,14 @@
 <script>
     var ks=[];
     var cnt=0;
+
+    $('#barcode_btn').click(()=>{
+        $('#barcode-modal').modal('show');
+        $('#barcode-modal').on('shown.bs.modal',function(e){
+            barcode_init();
+        });
+        
+    });
 
     $("#datatable-buttons1").DataTable(
         {
@@ -139,11 +104,28 @@
         }
     );
 
+    $("#datatable-buttons3").DataTable(
+        {
+            lengthChange:!1,buttons:["copy","print"],
+            language:{
+                paginate:{
+                    previous:"<i class='mdi mdi-chevron-left'>",
+                    next:"<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            drawCallback:function(){
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded")
+            }
+        }
+    );
+
     function sel(i,m,s,n,l,state) {
         var id='#sel-btn-'+i;
+        var id2='#sel-user-btn-'+i;
         if($(id).html()=="선택"){
             $(id).attr('class','btn btn-danger');
             $(id).html("취소");
+            
 
                 var k={};
                 k.idx=i;
@@ -159,6 +141,7 @@
         }else{
             $(id).attr('class','btn btn-primary');
             $(id).html("선택"); 
+
             var ks2=[];
             for(var j=0;j<ks.length;j++){
                 if(ks[j].idx!=i){
@@ -194,6 +177,7 @@
                 '<td>' + ks[i].nick + '</td>' +
                 '<td>' + ks[i].label + '</td>' +
                 '<td>' + state + '</td>' +
+                '<td>' + `<button class='btn btn-danger' onclick="sel(`+ks[i].idx+`,'`+ks[i].model+`','`+ks[i].sales+`','`+ks[i].nick+`','`+ks[i].label+`','`+ks[i].state+`')">취소</button>` + '</td>' +
                 '</tr>';
                 $('#select-tbody').append(row);
             }
@@ -222,6 +206,20 @@
                 jbalert('대여/반납신청','대여/반납 신청이 실패했습니다.');
             }
             setTimeout(()=>{location.href="/view/rental/pages/my"},1000);
+        });
+    }
+
+    function myrental(s){
+
+        $.post('/api/find/asset/user',{
+            state:s,
+        },(d,s)=>{
+            //alert(d);
+            asset_user_init(d);
+            $('#find-asset-user-modal').modal('show');
+            $('#find-asset-user-modal').on('shown.bs.modal',(e)=>{
+                
+            });
         });
     }
     

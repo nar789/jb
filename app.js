@@ -467,8 +467,10 @@ app.get('/view/request/rental',function(req,res){
   	req.session.logined=false;
 
 
-  var query=`select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
-where phone.id=asset_id order by model,label asc;`;
+  var query=`select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -553,6 +555,78 @@ app.get('/view/user',function(req,res){
 		});	
 		connection.end();
 
+});
+
+
+
+
+app.post('/api/find/asset',function(req,res){
+
+	var type=req.body.type;
+	var serial=req.body.serial;
+
+	var query='';
+	if(type==='nick')
+	{	
+
+		query=`select * from (select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id) k where k.nick like '%`+serial+`%';`;
+
+	}else if(type==='label'){
+		serial=serial.split(' ');
+		var model=serial[0];
+		//model=model.toUpperCase();
+		var label=serial[1];
+		//label=label.toUpperCase();
+
+
+
+
+		query=`select * from (select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id) k where k.model like '%`+model+`%' and k.label like '%`+label+`%';`;
+
+	}
+	if(query===''){
+		res.send('fail');return;
+	}
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	if(rows.length==0){
+	    		res.send('fail');
+	    		return;		
+	    	}
+	    	res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
+
+app.post('/api/find/asset/user',function(req,res){
+	var uid=req.session.userid;
+	var state=req.body.state;
+
+	var query=`select A.*,ifnull(B.state,'return') state,B.user_id from
+ (select * from phone) A left join
+ (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id where state='`+state+`' and user_id=`+uid+`;`;
+ 	console.log(query);
+ 	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
 });
 
 

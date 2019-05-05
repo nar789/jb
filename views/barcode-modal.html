@@ -1,0 +1,66 @@
+ <div id="barcode-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" >
+    <div class="modal-dialog ">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <div class="custom-control custom-radio mr-3" style="display: inline-block;">
+                        <input type="radio" id="customRadio1" name="customRadio" class="custom-control-input" value='nick'>
+                        <label class="custom-control-label" for="customRadio1">바코드 또는 시리얼번호</label>
+                    </div>
+                    <div class="custom-control custom-radio" style="display: inline-block;">
+                        <input type="radio" id="customRadio2" name="customRadio" class="custom-control-input" value='label' checked>
+                        <label class="custom-control-label" for="customRadio2">모델 + 라벨</label>
+                    </div>
+                </div>
+
+                <input type="text" class="form-control" placeholder="바코드 | 시리얼번호 | 모델+라벨 을 입력해주세요." id=serial>
+                <div class="text-center mt-2">
+                    <button class="btn btn-success btn-block mb-4" id='barcode_enter' onclick="serial_serach()">해당 시료 선택</button>
+                </div>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    function barcode_init() {
+        $('#serial').val("");
+        $('#serial').focus();
+    }
+
+    $('#serial').keydown((e)=>{
+        if(e.which==13)
+        {
+            $('#barcode_enter').click();
+        }
+    });
+
+    function serial_serach(){
+        var type = $(":input:radio[name=customRadio]:checked").val();
+        var serial=$('#serial').val();
+        $('#serial').val("");
+        if(serial.indexOf(' ')>=0){
+            serial=serial.toUpperCase();
+        }
+        $.post('/api/find/asset',{
+            type:type,
+            serial:serial,
+        },function(d,s){
+            
+            if(d=='fail')
+            {
+                alert('시료를 찾을 수 없습니다. 다시 확인해주십시오.');
+                return;
+            }
+
+            for(var i=0;i<d.length;i++){
+                sel(d[i].id,d[i].model,d[i].sales,d[i].nick,d[i].label,d[i].state);
+            }
+            alert('시료 선택이 완료되었습니다.');
+        });
+
+    }
+ 
+</script>

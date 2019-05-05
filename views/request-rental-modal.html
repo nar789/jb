@@ -1,0 +1,52 @@
+ <div id="request-rental-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                 <h4 class="mb-3">시료검색</h4>
+
+                                        <table id="datatable-buttons2" class="table table-striped dt-responsive" style="width:100% !important;">
+                                            <thead>
+                                                <tr>
+                                                    <th>번호</th>
+                                                    <th>모델명</th>
+                                                    <th>사업자</th>
+                                                    <th>고유번호</th>
+                                                    <th>라벨</th>
+                                                    <th>상태</th>
+                                                    <th>선택</th>
+                                                </tr>
+                                            </thead>
+                                        
+                                        
+                                            <tbody id=tbody>
+
+                                                <% for(var i=0;i<rows.length;i++) { %>
+                                                <tr>
+                                                    <td><%=(i+1)%></td>
+                                                    <td><%=rows[i].model%></td>
+                                                    <td><%=rows[i].sales%></td>
+                                                    <td><%=rows[i].nick%></td>
+                                                    <td><%=rows[i].label%></td>
+                                                    <td >
+                                                        <% if(rows[i].state=='rental') { %>
+                                                            <b style="color:#fa5c7c;">대여중</b>
+                                                        <% } else { %>
+                                                            <b style="color:#0acf97;">대여가능</b>
+                                                        <% } %>
+                                                    </td>
+                                                    <td ><button id='sel-btn-<%=rows[i].id%>'class='btn btn-primary' onclick="sel(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].sales%>','<%=rows[i].nick%>','<%=rows[i].label%>','<%=rows[i].state%>')">선택</button></td>
+                                                </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+    
+ 
+</script>

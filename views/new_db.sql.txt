@@ -76,6 +76,37 @@ select count(*) as cnt,date(write_dt) as date from rental group by date(write_dt
 
 
 
+고유번호로 검색한 현재 에셋 정보와 대여 상태 정보
+ select * from (select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id) k where k.nick like '%b%';
+
+
+
+ 모델번호 + 라벨로 검색한 현재 에셋정보와 대여 상태 정보
+  select * from (select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id) k where k.model like '%F900%' and k.label like '%CTS%';
+
+
+ 내가 대여한시료
+
+ select A.*,ifnull(B.state,'return') state,B.user_id from
+ (select * from phone) A left join
+ (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id where state='rental' and user_id=1;
+
+ 내가 반납한시료
+
+ select A.*,ifnull(B.state,'return') state,B.user_id from
+ (select * from phone) A left join
+ (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id where state='return' and user_id=1;
+
+
+
 
 **TEST QUERY**
 
