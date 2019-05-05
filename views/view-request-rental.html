@@ -15,9 +15,21 @@
                                 <div class="card">
                                     <div class="card-body">
 
-                                        <h4 class="mb-3">선택된 시료</h4>
+                                        <h4 class="mb-3">선택된 시료<br><br>
+                                        <button class="btn btn-outline-info">시료검색</button>
+                                        <button class="btn btn-outline-info">바코드 | 시리얼번호 | 라벨입력</button>
+                                        <button class="btn btn-outline-success">내가 대여한 시료</button>
+                                        <button class="btn btn-outline-success">내가 반납한 시료</button>
+                                        <button class="btn btn-outline-dark">전략</button>
+                                        <button class="btn btn-outline-dark">MASS</button>
+                                        <button class="btn btn-outline-dark">Tablet</button>
+                                        <button class="btn btn-outline-danger">내 장바구니</button>
+                                        </h4>
+                                        
 
-                                        <table id="datatable-buttons" class="table table-striped dt-responsive" style="width:100% !important;">
+
+
+                                        <table id="datatable-buttons1" class="table table-striped dt-responsive" style="width:100% !important;">
                                             <thead>
                                                 <tr>
                                                     <th>번호</th>
@@ -47,7 +59,7 @@
 
                                         <h4 class="mb-3">시료검색</h4>
 
-                                        <table id="datatable-buttons" class="table table-striped dt-responsive" style="width:100% !important;">
+                                        <table id="datatable-buttons2" class="table table-striped dt-responsive" style="width:100% !important;">
                                             <thead>
                                                 <tr>
                                                     <th>번호</th>
@@ -96,6 +108,36 @@
 <script>
     var ks=[];
     var cnt=0;
+
+    $("#datatable-buttons1").DataTable(
+        {
+            lengthChange:!1,buttons:["copy","print"],
+            language:{
+                paginate:{
+                    previous:"<i class='mdi mdi-chevron-left'>",
+                    next:"<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            drawCallback:function(){
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded")
+            }
+        }
+    );
+
+    $("#datatable-buttons2").DataTable(
+        {
+            lengthChange:!1,buttons:["copy","print"],
+            language:{
+                paginate:{
+                    previous:"<i class='mdi mdi-chevron-left'>",
+                    next:"<i class='mdi mdi-chevron-right'>"
+                }
+            },
+            drawCallback:function(){
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded")
+            }
+        }
+    );
 
     function sel(i,m,s,n,l,state) {
         var id='#sel-btn-'+i;

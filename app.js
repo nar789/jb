@@ -42,12 +42,14 @@ app.get('/',function(req,res){
     if(req.session===undefined)
     	req.session.logined=false;
 
-  	var query=`select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, 
-  	count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt 
-  	from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id 
-  	having asset_id=r.asset_id)) r where r.asset_id=p.id group by model;`;
-  	var query2='select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id group by asset_id;';
-  	var query3='select count(*) as cnt,date_format(write_dt,"%m월%d일") as d from rental group by date(write_dt);';
+  	var query=`select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
+(select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
+ left join
+(select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model`;
+
+  	var query2='select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id group by model;';
+  	var query3=`select count(if(state='rental',state,null)) rental_cnt,count(if(state='return',state,null)) return_cnt,date_format(write_dt,"%m월%d일") d from rental group by date(write_dt);`;
   	var connection = mysql.createConnection(config);
   	connection.connect();
   	connection.query(query, function(err, rows, fields) {
@@ -188,12 +190,18 @@ app.get('/view/phone/:model',function(req,res){
   	req.session.logined=false;
 
 
-  var query=`select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
-				where phone.id=asset_id and phone.model='`+model+`' order by label asc;`;
+  var query=`select * from (select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id) K where model='`+model+`';`;
 
-  var query2=`select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt from phone p,(select asset_id,state from rental r where id=(select max(id) 
-  from rental group by asset_id having asset_id=r.asset_id)) r 
-  where r.asset_id=p.id and model='`+model+`' group by model;`;
+  var query2=`select * from (
+select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
+(select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
+ left join
+(select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model) K 
+where model='`+model+`';`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -227,9 +235,11 @@ app.get('/view/phone',function(req,res){
   	req.session.logined=false;
 
 
-  var query=`select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt 
-  from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r 
-  where r.asset_id=p.id group by model;`;
+  var query=`select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
+(select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
+ left join
+(select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -344,14 +354,16 @@ app.get('/view/history/:asset_id',function(req,res){
 	connection.connect();
 	connection.query(query, function(err, rows, fields) {
 	    if (!err){
+	    	
 	    	var title='';
 	    	if(rows.length==0)
 	    	{
-	    		title='';
+	    		title='대여 정보가 없습니다.';
 	    	}
 	    	else {title = rows[0].model+' '+rows[0].label;
 			    	title=title.toUpperCase();
-			    }
+			}
+			
 	    	res.render('view-history.html',{user:req.session,rows:rows,title:title,nick:'disp'});
 	    }
 	    else res.send('fail');

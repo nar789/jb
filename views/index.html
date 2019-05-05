@@ -88,10 +88,12 @@
 
     var lbs2=[];
     var vals2=[];
+    var vals3=[];
     <% for(var i=0;i<rows3.length;i++){ %>
 
         lbs2.push("<%=rows3[i].d%>");
-        vals2.push(<%=rows3[i].cnt%>);
+        vals2.push(<%=rows3[i].rental_cnt%>);
+        vals3.push(<%=rows3[i].return_cnt%>);
     <% } %>
 
     
@@ -99,10 +101,10 @@
     var t=document.getElementById("count-chart").getContext("2d").createLinearGradient(0,500,0,150);
     t.addColorStop(0,"#fa5c7c"),t.addColorStop(1,"#727cf5");
     var e={labels:lbs2,
-    datasets:[{label:"총 대여 건수",backgroundColor:t,borderColor:t,hoverBackgroundColor:t,hoverBorderColor:t,
+    datasets:[{label:"대여 건수",backgroundColor:t,borderColor:t,hoverBackgroundColor:t,hoverBorderColor:t,
     data:vals2},
     {label:"반납 건수",backgroundColor:"#e3eaef",borderColor:"#e3eaef",hoverBackgroundColor:"#e3eaef",hoverBorderColor:"#e3eaef",
-    data:vals2 } ] };
+    data:vals3 } ] };
     respChart($("#count-chart"),"Bar",e,{maintainAspectRatio:!1,legend:{display:!1},
         scales:{yAxes:[{gridLines:{display:!1},stacked:!1,ticks:{stepSize:20}}],
         xAxes:[{barPercentage:.7,categoryPercentage:.5,stacked:!1,

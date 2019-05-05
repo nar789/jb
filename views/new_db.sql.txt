@@ -1,21 +1,33 @@
 기기별 /모든 모델 대여 상태
-select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
-where phone.id=asset_id order by phone.id desc;
-
-
+select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id
 
 기기별/ 특정 모델의 대여 상태
-select phone.*,B.state from phone, (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
-where phone.id=asset_id and phone.model='sm-g975n' order by label asc;
-
+select * from (select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id) K where model='SM-A105N';
 
 모델별 / 모든 모델의 총 대수/대여개수/남은대수
-select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r where r.asset_id=p.id group by model;
+select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
+(select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
+ left join
+(select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model
 
 
 모델별/ 특정 모델 총대수/대여대수/남은대수
 
-select model, group_concat(distinct(sales)) as saleses, count(*) as cnt, count(if(state='rental',state,null)) as rental_cnt,count(if(state='return',state,null)) as return_cnt from phone p,(select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) r where r.asset_id=p.id and model='sm-f900u' group by model;
+select * from (
+select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
+(select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
+ left join
+(select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model) K where model='SM-T725';
+
+
 
 
 
@@ -55,7 +67,7 @@ where phone.id=asset_id order by model,label asc;
 
 그래프 1
 
-select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id group by asset_id;
+select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id group by model;
 
 
 그래프 2
@@ -66,9 +78,4 @@ select count(*) as cnt,date(write_dt) as date from rental group by date(write_dt
 
 
 **TEST QUERY**
-
-
-select user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
-,group_concat(distinct(sales)) as saleses
- from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc
 
