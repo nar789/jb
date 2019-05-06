@@ -1,0 +1,57 @@
+ <div id="page-edit-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <h1>페이지편집</h1>
+                </div>
+                <input type=hidden id=len>
+                <form class="pl-3 pr-3" action="#">
+                    <div class="from-group mb-2" id=check_body>
+
+                    </div>
+                    <div class="form-group text-center">
+                        <button class="btn btn-success btn-block" id='update-btn'>정보수정</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+  var name=`<%=menu%>`;
+  $('#update-btn').click(()=>{
+    var len=parseInt($('#len').val());
+    var f=[];
+    for(var i=1;i<=len;i++)
+    {
+        if($(`#check${i}`).is(':checked'))
+        {
+            f.push(ms[i-1]);
+        }
+    }
+    $.post('/api/filter/update',{
+        name:name,
+        filter:f,
+    },(d,s)=> {
+        if(d==="success")
+        {
+           $('#page-edit-modal').modal('hide');
+           jbalert('페이지 업데이트',"페이지 업데이트가 완료됐습니다.");
+           setTimeout(()=>{
+              location.reload();
+           },1000);
+        }else{
+            $('#page-edit-modal').modal('hide');
+           jbalert('페이지 업데이트',"페이지 업데이트가 실패했습니다..");
+           setTimeout(()=>{
+              location.reload();
+           },1000);
+        }
+    });
+  });
+</script>

@@ -108,5 +108,33 @@ select count(*) as cnt,date(write_dt) as date from rental group by date(write_dt
 
 
 
+
+ 페이지에서 특정 필터적용(테블릿 필터 적용)
+
+ select * from (
+ select rental.write_dt,rental.state,rental.user_id,user.name,count(*) as cnt,
+group_concat(distinct(phone.label)) as labels,
+unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
+group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ group by write_dt order by write_dt desc) K where models regexp (select replace(filter,',','|') from page where name='tablet');
+
+
+
+
+
+전체모델과 특정 필터 모델 출력
+ select group_concat(distinct(p.model)) models,f.filter from phone p,page f where f.name='tablet';
+
+
+ 시료 필터 검색
+ 
+ select A.*,ifnull(B.state,'return') state,B.user_id from
+ (select * from phone) A left join
+ (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id where model regexp (select replace(filter,',','|') from page where name='tablet');
+
+
+
 **TEST QUERY**
 

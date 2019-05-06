@@ -1,4 +1,5 @@
 <% include base-top.html %>
+<% include page-edit-modal.html %>
       <!-- start page title -->
                         <div class="row">
                             <div class="col-12">
@@ -14,8 +15,11 @@
                                 <div class="card">
                                     <div class="card-body">
 
-                                        <a href='/view/request/rental'><button class='btn btn-success btn-lg' style="float:right;">대여 / 반납</button></a>
-
+                                        <a href='/view/request/rental'><button class='btn btn-success' style="float:right;">대여 / 반납</button></a>
+                                        <% if(menu!='all' && menu!='my'){ %>
+                                            <button class='btn btn-info mr-2' style="float:right;" onclick='page_edit()'>페이지편집</button>
+                                            
+                                        <% } %>
                                         <h2 class="mb-3">구글승인팀의 시료장부</h2>
 
 
@@ -34,19 +38,19 @@
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a href="#all" data-toggle="tab" aria-expanded="false" class="nav-link rounded-0">
+                                                <a href="/view/rental/pages/stg" class="nav-link rounded-0 <% if(menu=='stg'){ %>active<% } %>" >
                                                     <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i>
                                                     <span class="d-none d-lg-block">전략</span>
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a href="#all" data-toggle="tab" aria-expanded="false" class="nav-link rounded-0">
+                                                <a href="/view/rental/pages/tablet" class="nav-link rounded-0 <% if(menu=='tablet'){ %>active<% } %>">
                                                     <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i>
                                                     <span class="d-none d-lg-block">Tablet</span>
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a href="#all" data-toggle="tab" aria-expanded="false" class="nav-link rounded-0">
+                                                <a href="/view/rental/pages/mass" class="nav-link rounded-0 <% if(menu=='mass'){ %>active<% } %>">
                                                     <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i>
                                                     <span class="d-none d-lg-block">MASS</span>
                                                 </a>
@@ -110,6 +114,50 @@
                         <!-- end row-->
 <% include base-bottom.html %>
 <script>
+    var ms;
+    function page_edit(){
 
+        $.get('/api/filter/<%=menu%>',(d,s)=>{
+            var s=``;
+            ms=d.models;
+            ms=ms.split(',');
+            
+                
+            var fs=d.filter;
+            fs=fs.split(',');
+            $('#len').val(ms.length);
+            for(var i=0;i<ms.length;i++){
+                var e=false;
+                for(var j=0;j<fs.length;j++)
+                {   
+                    if(ms[i]==fs[j])
+                    {
+                        e=true;
+                        s=s+`
+                             <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="check${i+1}" checked>
+                                <label class="custom-control-label" for="check${i+1}">${ms[i]}</label>
+                            </div>
+                        `;
+                        break;
+                    }
+                    
+                }
+                if(!e)
+                {
+                    s=s+`
+                         <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="check${i+1}" name="${ms[i]}">
+                            <label class="custom-control-label" for="check${i+1}" id="check${i+1}_label">${ms[i]}</label>
+                        </div>
+                    `;
+                }
+            }
+            $('#check_body').html(s);
+            $('#page-edit-modal').modal('show');
+        });
+
+        //$('#page-edit-modal').modal('show');
+    }   
     
 </script>

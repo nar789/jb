@@ -259,6 +259,7 @@ from rental r,phone p where r.id=(select max(id) from rental group by asset_id h
 app.post('/api/phone/crud',function(req,res){
 	var cmd=req.body.cmd;
 	var opt=req.body.opt;
+
 	/*
 	if(cmd=='read' && opt==1)
 	{
@@ -284,21 +285,14 @@ app.post('/api/phone/crud',function(req,res){
 		var sales=req.body.sales.toUpperCase();
 		var label=req.body.label.toUpperCase();
 
-		var query=`insert into phone values(null,'`+model+`','`+sales+`','`+nick+`','`+label+`')`;
+		var query=`insert into phone
+		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`') as tmp
+		 where not exists (select nick from phone where nick='${nick}') limit 1`;
 		var connection = mysql.createConnection(config);
 	    connection.connect();
 	    connection.query(query, function(err, rows, fields) {
 		    if (!err){
-
-		    	var query2=`insert into rental values(null,1,`+rows.insertId+`,`+req.session.userid+`,now(),'rental')`;
-		    	var connection2 = mysql.createConnection(config);
-	    		connection2.connect();
-		    	connection2.query(query2, function(err, rows, fields) {
-		    		if (!err){
-		    			res.send('success');
-		    		}else res.send('fail');
-		    	});
-		    	connection2.end();
+		    	res.send('success');
 		    }
 		    else res.send('fail');
 		});	
@@ -332,7 +326,26 @@ app.post('/api/phone/crud',function(req,res){
 		    else res.send('fail');
 		});	
 	    connection.end();
-	}else{
+	}else if(cmd=='check'){
+		var s=req.body.serial;
+		var query=`select id from phone where nick like '%${s}%';`;
+		var connection = mysql.createConnection(config);
+	    connection.connect();
+	    connection.query(query, function(err, rows, fields) {
+
+		    if (!err){
+		    	if(rows.length==1){
+		    		var k=rows[0].id;
+		    		res.send(k+'');
+		    	}else res.send('fail');
+
+		    }
+		    else res.send('fail');
+		});	
+	    connection.end();
+
+	}
+	else{
 		res.send('fail');
 	}
 });
@@ -364,7 +377,7 @@ app.get('/view/history/:asset_id',function(req,res){
 			    	title=title.toUpperCase();
 			}
 			
-	    	res.render('view-history.html',{user:req.session,rows:rows,title:title,nick:'disp'});
+	    	res.render('view-history.html',{user:req.session,rows:rows,title:title,nick:'disp',timeAgo:timeAgo});
 	    }
 	    else res.send('fail');
 	});	
@@ -398,7 +411,7 @@ app.get('/view/history/user/:user_id',function(req,res){
 	    	else {title = rows[0].name+' '+rows[0].email;
 			    	title=title.toUpperCase();
 			    }
-	    	res.render('view-history.html',{user:req.session,rows:rows,title:title,nick:'nope'});
+	    	res.render('view-history.html',{user:req.session,rows:rows,title:title,nick:'nope',timeAgo:timeAgo});
 	    }
 	    else res.send('fail');
 	});	
@@ -459,6 +472,104 @@ app.get('/view/rental/pages/my',function(req,res){
 
 });
 
+app.get('/view/rental/pages/stg',function(req,res){
+  
+
+  if(req.session===undefined)
+  	req.session.logined=false;
+
+
+  var query=`select * from (
+ select rental.write_dt,rental.state,rental.user_id,user.name,count(*) as cnt,
+group_concat(distinct(phone.label)) as labels,
+unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
+group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ group by write_dt order by write_dt desc) K where models regexp (select replace(filter,',','|') from page where name='stg');`;
+
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'stg',timeAgo:timeAgo});
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+
+});
+
+app.get('/view/rental/pages/tablet',function(req,res){
+  
+
+  if(req.session===undefined)
+  	req.session.logined=false;
+
+
+  var query=`select * from (
+ select rental.write_dt,rental.state,rental.user_id,user.name,count(*) as cnt,
+group_concat(distinct(phone.label)) as labels,
+unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
+group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ group by write_dt order by write_dt desc) K where models regexp (select replace(filter,',','|') from page where name='tablet');`;
+
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'tablet',timeAgo:timeAgo});
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+
+});
+
+app.get('/view/rental/pages/mass',function(req,res){
+  
+
+  if(req.session===undefined)
+  	req.session.logined=false;
+
+
+  var query=`select * from (
+ select rental.write_dt,rental.state,rental.user_id,user.name,count(*) as cnt,
+group_concat(distinct(phone.label)) as labels,
+unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
+group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ group by write_dt order by write_dt desc) K where models regexp (select replace(filter,',','|') from page where name='mass');`;
+
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'mass',timeAgo:timeAgo});
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+
+});
+
+app.get('/api/filter/:page',function(req,res){
+	var page=req.params.page; //stg|mass|tablet
+	var query=`select group_concat(distinct(p.model)) models,f.filter from phone p,page f where f.name='${page}';`;
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	if(rows.length!=0)
+    			res.json(rows[0]);
+    		else
+    			res.send('fail');
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
 
 app.get('/view/request/rental',function(req,res){
   
@@ -487,7 +598,6 @@ app.get('/view/request/rental',function(req,res){
 
 app.post('/api/rental',function(req,res){
   
-
   var aids=req.body.aids;
   var state='';
   if(req.body.type==1)
@@ -513,6 +623,52 @@ app.post('/api/rental',function(req,res){
 	    else res.send('fail');
 	});	
 	connection.end();
+});
+
+
+app.post('/api/cli/rental',function(req,res){
+  
+  var aids=req.body.aids;
+  var email=req.body.email;
+  var state='';
+  if(req.body.type==1)
+  	state='rental';
+  else state='return';
+
+  var query2=`select id from user where email like '%${email}%'`;
+  var connection2 = mysql.createConnection(config);
+	connection2.connect();
+	connection2.query(query2, function(err, rows2, fields) {
+	    if (!err){
+	    	var uid=rows2[0].id;
+
+	    	var query=`insert into rental values`;
+			  if(aids===undefined ){
+			  	res.send('fail');
+			  	return;
+			  }
+			  for(var i=0;i<aids.length;i++)
+			  {
+			  	if(i!=0)query= query+",";
+			  	query= query+"(null,1,"+aids[i]+","+uid+",now(),'"+state+"')";
+			  }
+
+				var connection = mysql.createConnection(config);
+				connection.connect();
+				connection.query(query, function(err, rows, fields) {
+				    if (!err){
+				    	res.send('success');
+				    }
+				    else res.send('fail');
+				});	
+				connection.end();
+
+	    }
+	    else res.send('fail');
+	});	
+	connection2.end();
+
+
 });
 
 
@@ -617,7 +773,26 @@ app.post('/api/find/asset/user',function(req,res){
  (select * from phone) A left join
  (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
  on A.id=B.asset_id where state='`+state+`' and user_id=`+uid+`;`;
- 	console.log(query);
+ 	//console.log(query);
+ 	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
+app.get('/api/find/asset/filter/:name',function(req,res){
+	var name=req.params.name;
+
+	var query=`select A.*,ifnull(B.state,'return') state,B.user_id from
+ (select * from phone) A left join
+ (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id where model regexp (select replace(filter,',','|') from page where name='${name}');`;
+ 	//console.log(query);
  	var connection = mysql.createConnection(config);
 	connection.connect();
 	connection.query(query, function(err, rows, fields) {
@@ -631,6 +806,24 @@ app.post('/api/find/asset/user',function(req,res){
 
 
 
+
+app.post('/api/filter/update',function(req,res){
+	var name=req.body.name;
+	var filter=req.body.filter;
+
+	var query=`update page set filter='${filter}' where name='${name}'`;
+
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.send('success');
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+
+});
 
 
 

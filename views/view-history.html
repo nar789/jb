@@ -47,7 +47,9 @@
                                                     <td><%=(i+1)%></td>
                                                     <td><a href='/view/history/user/<%=rows[i].user_id%>'><%=rows[i].name%></a></td>
                                                     <td><a href='/view/history/user/<%=rows[i].user_id%>'><%=rows[i].email%></a></td>
-                                                    <td><%=rows[i].write_dt%></td>
+                                                    
+                                                    <td onclick="javascript:jbalert('시간','<%=rows[i].write_dt%>');"><a href='#'><%=timeAgo.format(rows[i].write_dt)%></a></td>
+                                                    
                                                     <td>
                                                         <% if(rows[i].state=='rental') { %>
                                                             <b style="color:#fa5c7c;">대여</b>

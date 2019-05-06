@@ -21,11 +21,12 @@
                                         <h4 class="mb-3">선택된 시료<br><br>
                                         <button class="btn btn-outline-info" data-toggle="modal" data-target="#request-rental-modal">시료검색</button>
                                         <button class="btn btn-outline-info" id=barcode_btn>바코드 | 시리얼번호 | 라벨입력</button>
-                                        <button class="btn btn-outline-success" onclick="myrental('rental')">내가 대여한 시료</button>
-                                        <button class="btn btn-outline-success" onclick="myrental('return')">내가 반납한 시료</button>
-                                        <button class="btn btn-outline-dark">전략</button>
-                                        <button class="btn btn-outline-dark">MASS</button>
-                                        <button class="btn btn-outline-dark">Tablet</button>
+                                        <button class="btn btn-outline-success" onclick="myrental('rental')">현재 내가 대여한 시료</button>
+                                        <!--
+                                        <button class="btn btn-outline-success" onclick="myrental('return')">최근 내가 반납한 시료</button>//-->
+                                        <button class="btn btn-outline-dark" onclick="findfilter('stg')">전략</button>
+                                        <button class="btn btn-outline-dark" onclick="findfilter('mass')">MASS</button>
+                                        <button class="btn btn-outline-dark" onclick="findfilter('tablet')">Tablet</button>
                                         <button class="btn btn-outline-danger">내 장바구니</button>
                                         </h4>
                                         
@@ -214,6 +215,20 @@
         $.post('/api/find/asset/user',{
             state:s,
         },(d,s)=>{
+            //alert(d);
+            asset_user_init(d);
+            $('#find-asset-user-modal').modal('show');
+            $('#find-asset-user-modal').on('shown.bs.modal',(e)=>{
+                
+            });
+        });
+    }
+
+
+
+    function findfilter(name){
+
+        $.get('/api/find/asset/filter/'+name,(d,s)=>{
             //alert(d);
             asset_user_init(d);
             $('#find-asset-user-modal').modal('show');
