@@ -72,7 +72,7 @@ select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id gr
 
 그래프 2
 
-select count(*) as cnt,date(write_dt) as date from rental group by date(write_dt);
+select count(if(state='rental',state,null)) rental_cnt,count(if(state='return',state,null)) return_cnt,date_format(write_dt,"%m월%d일") d from rental group by date(write_dt);
 
 
 
@@ -134,6 +134,24 @@ group_concat(distinct(sales)) as saleses
  (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
  on A.id=B.asset_id where model regexp (select replace(filter,',','|') from page where name='tablet');
 
+
+
+기간별 대여/반납 리스트
+
+select date_format(write_dt,'%Y-%m-%d %H:%i:%s') dt,user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
+,group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id and write_dt between '2019-04-30' and '2019-05-02' group by write_dt order by write_dt desc;
+
+
+기간별 그래프 1
+
+select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id and write_dt between '2019-04-30' and '2019-05-02' group by model;
+
+
+
+기간별 그래프 2
+ select count(if(state='rental',state,null)) rental_cnt,count(if(state='return',state,null)) return_cnt,date_format(write_dt,"%m월%d일") d from rental
+  where write_dt between '2019-04-30' and '2019-05-02 23:59:59' group by date(write_dt);
 
 
 **TEST QUERY**

@@ -27,8 +27,23 @@ app.use(session({
  secret: '!aajbaa!',
  resave: false,
  saveUninitialized: true,
+ cookie:{
+ 	maxAge:24000*60*60*30,
+ },
  store: new FileStore(),
 }));
+
+function logincheck(req,res)
+{
+	if(req.session===undefined){
+	  	req.session.logined=false;
+	  	res.render('pages-404.html');
+	  	return false;
+	}else if(!req.session.logined){
+		res.render('pages-404.html');
+		return false;
+	}else return true;
+}
 
 
 
@@ -37,10 +52,20 @@ app.get('/intro',function(req,res) {
   res.send('2019 JzencBuwo proj. Designed by jh0511.lee. This is assets management system.');
 });
 
+ function date_to_str(d) {
+    var y=d.getFullYear();
+    var m=d.getMonth()+1;
+    var day=d.getDate();
+    if(m<10)m="0"+m;
+    if(day<10)day="0"+day;
+    return y+"-"+m+"-"+day;
+}
+
 app.get('/',function(req,res){
 	console.log(req.session);
-    if(req.session===undefined)
+    if(req.session===undefined){
     	req.session.logined=false;
+    }
 
   	var query=`select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
 (select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
@@ -48,8 +73,18 @@ app.get('/',function(req,res){
 (select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
 from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model`;
 
-  	var query2='select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id group by model;';
-  	var query3=`select count(if(state='rental',state,null)) rental_cnt,count(if(state='return',state,null)) return_cnt,date_format(write_dt,"%m월%d일") d from rental group by date(write_dt);`;
+  	
+	var end=date_to_str(new Date());
+    var d=new Date();
+    var w=d.getTime()-(7*24*60*60*1000);
+    d.setTime(w);
+    var start=date_to_str(d);
+
+
+	
+  	var query2=`select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id and write_dt between '${start}' and '${end} 23:59:59' group by model;`;
+  	var query3=`select count(if(state='rental',state,null)) rental_cnt,count(if(state='return',state,null)) return_cnt,date_format(write_dt,"%m월%d일") d from rental
+  where write_dt between '${start}' and '${end} 23:59:59' group by date(write_dt);`;
   	var connection = mysql.createConnection(config);
   	connection.connect();
   	connection.query(query, function(err, rows, fields) {
@@ -186,8 +221,7 @@ app.get('/api/logout',function(req,res){
 app.get('/view/phone/:model',function(req,res){
   var model=req.params.model;
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
 
   var query=`select * from (select A.*,ifnull(B.state,'return') state from
@@ -231,8 +265,7 @@ where model='`+model+`';`;
 app.get('/view/phone',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
 
   var query=`select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
@@ -355,8 +388,7 @@ app.post('/api/phone/crud',function(req,res){
 app.get('/view/history/:asset_id',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
   var asset_id=req.params.asset_id;
 
@@ -391,8 +423,7 @@ app.get('/view/history/:asset_id',function(req,res){
 app.get('/view/history/user/:user_id',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
   var user_id=req.params.user_id
 
@@ -424,8 +455,7 @@ app.get('/view/history/user/:user_id',function(req,res){
 app.get('/view/rental/pages/all',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
 
   var query=`select user.*,rental.*,phone.*,count(*) as cnt,
@@ -449,8 +479,7 @@ group_concat(distinct(sales)) as saleses
 app.get('/view/rental/pages/my',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
   var query2=`select user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
 ,group_concat(distinct(sales)) as saleses
@@ -475,8 +504,7 @@ app.get('/view/rental/pages/my',function(req,res){
 app.get('/view/rental/pages/stg',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
 
   var query=`select * from (
@@ -502,8 +530,7 @@ group_concat(distinct(sales)) as saleses
 app.get('/view/rental/pages/tablet',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
 
   var query=`select * from (
@@ -529,8 +556,7 @@ group_concat(distinct(sales)) as saleses
 app.get('/view/rental/pages/mass',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
 
   var query=`select * from (
@@ -574,8 +600,7 @@ app.get('/api/filter/:page',function(req,res){
 app.get('/view/request/rental',function(req,res){
   
 
-  if(req.session===undefined)
-  	req.session.logined=false;
+  if(!logincheck(req,res))return;
 
 
   var query=`select A.*,ifnull(B.state,'return') state from
@@ -674,8 +699,7 @@ app.post('/api/cli/rental',function(req,res){
 
 app.get('/view/rental/detail/:userid/:timestamp',function(req,res){
 
-	if(req.session===undefined)
-  	req.session.logined=false;
+	if(!logincheck(req,res))return;
 
 	var ts=req.params.timestamp;
 	var uid=req.params.userid;
@@ -695,8 +719,7 @@ app.get('/view/rental/detail/:userid/:timestamp',function(req,res){
 
 app.get('/view/user',function(req,res){
 
-	if(req.session===undefined)
-	  	req.session.logined=false;
+	if(!logincheck(req,res))return;
 
 
 	  var query=`select * from user`;
@@ -823,6 +846,78 @@ app.post('/api/filter/update',function(req,res){
 	});	
 	connection.end();
 
+});
+
+
+app.get('/view/chart',function(req,res){
+	if(!logincheck(req,res))return;
+
+	res.render('view-chart.html',{user:req.session});
+});
+
+app.get('/view/chart2',function(req,res){
+	if(!logincheck(req,res))return;
+
+	res.render('view-chart2.html',{user:req.session});
+});
+
+
+
+app.post('/api/rental/date',function(req,res){
+	var start=req.body.start;
+	var end=req.body.end;
+	var query=`select date_format(write_dt,'%Y-%m-%d %H:%i:%s') dt,user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
+,group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id and write_dt between '${start}' and '${end} 23:59:59' group by write_dt order by write_dt desc;`;
+
+   var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
+app.post('/api/rental/date/graph',function(req,res){
+	var start=req.body.start;
+	var end=req.body.end;
+	var query=`select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id and write_dt between '${start}' and '${end} 23:59:59' group by model;`;
+
+   var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
+
+app.post('/api/rental/date/graph2',function(req,res){
+	var start=req.body.start;
+	var end=req.body.end;
+	var query=`select count(if(state='rental',state,null)) rental_cnt,count(if(state='return',state,null)) return_cnt,date_format(write_dt,"%m월%d일") d from rental
+  where write_dt between '${start}' and '${end} 23:59:59' group by date(write_dt);`;
+
+   var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
+
+app.get('/view/404',function(req,res){
+	res.redirect('pages-404.html');
 });
 
 

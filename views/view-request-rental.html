@@ -120,25 +120,34 @@
         }
     );
 
-    function sel(i,m,s,n,l,state) {
-        var id='#sel-btn-'+i;
-        var id2='#sel-user-btn-'+i;
+    function sel(o,i,m,s,n,l,state) {
+
+        var id="#"+o.id;
         if($(id).html()=="선택"){
             $(id).attr('class','btn btn-danger');
             $(id).html("취소");
-            
-
+                    
                 var k={};
                 k.idx=i;
+
                 k.sel='y';
                 k.model=m;
+
                 k.sales=s;
+
                 k.nick=n;
                 k.label=l;
                 k.state=state;
+
+                
+                for(var j=0;j<ks.length;j++)
+                {
+                    if(ks[j].idx==i)return;
+                }
                 ks.push(k);
 
-            sel_update(ks);
+
+              sel_update(ks);
         }else{
             $(id).attr('class','btn btn-primary');
             $(id).html("선택"); 
@@ -161,6 +170,7 @@
         
         var c=0;
         $('#select-tbody').html("");
+
         for(var i=0;i<ks.length;i++)
         {
             if(ks[i].idx>0)
@@ -178,7 +188,7 @@
                 '<td>' + ks[i].nick + '</td>' +
                 '<td>' + ks[i].label + '</td>' +
                 '<td>' + state + '</td>' +
-                '<td>' + `<button class='btn btn-danger' onclick="sel(`+ks[i].idx+`,'`+ks[i].model+`','`+ks[i].sales+`','`+ks[i].nick+`','`+ks[i].label+`','`+ks[i].state+`')">취소</button>` + '</td>' +
+                '<td>' + `<button class='btn btn-danger' onclick="sel(this,`+ks[i].idx+`,'`+ks[i].model+`','`+ks[i].sales+`','`+ks[i].nick+`','`+ks[i].label+`','`+ks[i].state+`')">취소</button>` + '</td>' +
                 '</tr>';
                 $('#select-tbody').append(row);
             }
