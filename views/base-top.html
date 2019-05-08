@@ -43,7 +43,10 @@
                             
 
                             <% if (user.logined) { %>
-                              <h5 style='display: inline-block;'><a href='/view/rental/pages/my'><h5 style="margin:0px;display: inline-block;"><i class="mdi mdi-account-circle"></i><%=user.name%></h5></a> 님 환영합니다.</h5>
+                              <h5 style='display: inline-block;'><a href='/view/rental/pages/my'><h5 style="margin:0px;display: inline-block;"><i class="mdi mdi-account-circle"></i><%=user.name%></h5></a> 님 환영합니다. &nbsp;&nbsp;&nbsp;&nbsp;jb-cli@1.0.9 &nbsp;&nbsp;<a href='/assets/bin/win.zip'>Down(<i class="mdi mdi-windows"></i>Win)</a>
+                              &nbsp;&nbsp;<a href='/assets/bin/linux.zip'>Down(<i class="mdi mdi-linux"></i>Linux)</a>
+                              &nbsp;&nbsp;<a href='/assets/bin/macos.zip'>Down(<i class="mdi mdi-desktop-mac"></i>MacOS)</a>
+                            </h5>
                               <button class="btn btn-primary" style="float:right;" onclick="javascript:location.href='/api/logout';">로그아웃</button>
                             <% }else{ %>
                               <button id=pr-login-btn class="btn btn-primary" style="float:right;" data-toggle="modal" data-target="#login-modal">로그인</button>
