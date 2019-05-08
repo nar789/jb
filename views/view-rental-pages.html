@@ -114,6 +114,25 @@
                         <!-- end row-->
 <% include base-bottom.html %>
 <script>
+    <% if(menu=='all'){ %>
+        egg_type=1;
+    <% } %>
+    <% if(menu=='my'){ %>
+        egg_type=2;
+    <% } %>
+    <% if(menu=='stg'){ %>
+        egg_type=3;
+    <% } %>
+    <% if(menu=='tablet'){ %>
+        egg_type=4;
+    <% } %>
+
+    <% if(menu=='mass'){ %>
+        egg_type=5;
+    <% } %>
+
+
+
     var ms;
     function page_edit(){
 
