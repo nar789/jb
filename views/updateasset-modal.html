@@ -16,7 +16,17 @@
 
                     <div class="form-group">
                         <label for="model">고유 번호</label>
-                        <input class="form-control" type="text" id="update-nick" required="" placeholder="ex. 시리얼번호, 바코드번호">
+                        <input class="form-control" type="text" id="update-nick" required="" placeholder="ex. 시리얼번호1, 시리얼번호2">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">바코드</label>
+                        <input class="form-control" type="text" id="update-barcode" required="" placeholder="ex. 바코드">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">IMEI</label>
+                        <input class="form-control" type="text" id="update-imei" required="" placeholder="ex. 15자리 IMEI번호">
                     </div>
 
                     <div class="form-group">
@@ -73,6 +83,9 @@
         var nick=$('#update-nick').val();
         var sales=$('#update-sales').val();
         var label=$('#update-label').val();
+        var barcode=$('#update-barcode').val();
+        var imei=$('#update-imei').val();
+
         var aid=$('#aid').val();
 
         $.post('/api/phone/crud',{
@@ -82,6 +95,8 @@
             nick:nick,
             sales:sales,
             label:label,
+            barcode:barcode,
+            imei:imei,
         },(d,s)=>{
             $('#updateasset-modal').modal('hide');
             if(d=="success"){

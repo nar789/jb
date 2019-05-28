@@ -15,7 +15,13 @@
                                 <div class="card">
                                     <div class="card-body">
 
-                                        <h4 class="header-title">  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#addasset-modal">시료추가</button></h4>
+                                        <form action='/excel' method="post" enctype="multipart/form-data" id=fileupload-form>
+                                            <input type=file id=fileupload name="excelfile" onchange="file_select()"
+                                            style="display: none;" />
+                                        </form>
+                                            
+                                        <h4 class="header-title">  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#addasset-modal">시료추가</button>
+                                            <button class='btn btn-info mr-2' style="float:right;" id='excel-upload-btn' onclick='excel_upload()'><i class="fas fa-upload"></i>&nbsp;엑셀파일업로드</button></h4>
                                         <h2>모델별 목록</h2>
                                         <p class="text-muted font-14 mb-4">
                                             <!--VZW, TMB, SPR///-->
@@ -62,6 +68,16 @@
 <% include base-bottom.html %>
 <script>
     egg_type=7;
+
+
+    function excel_upload(){
+        $('#fileupload').val("");
+        $('#fileupload').click();
+    }
+    function file_select()
+    {
+        $('#fileupload-form').submit();
+    }
 
     
 </script>

@@ -32,7 +32,9 @@
                                                 <tr>
                                                     <th>번호</th>
                                                     <th>모델</th>
-                                                    <th>고유번호</th>
+                                                    <th>시리얼번호</th>
+                                                    <th>바코드</th>
+                                                    <th>IMEI</th>
                                                     <th>라벨</th>
                                                     <th>사업자</th>
                                                     <th>상태</th>
@@ -49,6 +51,12 @@
                                                     <td><%=(i+1)%></td>
                                                     <td><%=rows[i].model%></td>
                                                     <td><%=rows[i].nick%></td>
+                                                    <td><%=rows[i].barcode%></td>
+                                                    <% if(rows[i].imei.indexOf('noimei')>=0){ %>
+                                                        <td></td>
+                                                    <% } else { %>
+                                                        <td><%=rows[i].imei%></td>
+                                                    <% } %>
                                                     <td><%=rows[i].label%></td>
                                                     <td><%=rows[i].sales%></td>
                                                     <td>
@@ -59,7 +67,7 @@
                                                         <% } %>
                                                     </td>
                                                     <td><a href='/view/history/<%=rows[i].id%>'><button class='btn btn-primary'>대여정보 보기</button></a></td>
-                                                    <td><button class='btn btn-info' onclick="assetupdate(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].nick%>','<%=rows[i].sales%>','<%=rows[i].label%>')">시료정보 편집</button></td>
+                                                    <td><button class='btn btn-info' onclick="assetupdate(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].nick%>','<%=rows[i].sales%>','<%=rows[i].label%>','<%=rows[i].barcode%>','<%=rows[i].imei%>')">시료정보 편집</button></td>
                                                 </tr>
                                                 <% } %>
                                             </tbody>
@@ -73,12 +81,14 @@
 <% include base-bottom.html %>
 <script>
     egg_type=6;
-    function assetupdate(id,model,nick,sales,label) {
+    function assetupdate(id,model,nick,sales,label,barcode,imei) {
         $('#aid').val(id);
         $('#update-model').val(model);
         $('#update-nick').val(nick);
         $('#update-sales').val(sales);
         $('#update-label').val(label);
+        $('#update-barcode').val(barcode);
+        $('#update-imei').val(imei);
         $('#updateasset-modal').modal('show');
     }
 </script>

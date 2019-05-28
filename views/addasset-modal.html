@@ -16,7 +16,17 @@
 
                     <div class="form-group">
                         <label for="model">고유 번호</label>
-                        <input class="form-control" type="text" id="input-nick" required="" placeholder="ex. 시리얼번호, 바코드번호">
+                        <input class="form-control" type="text" id="input-nick" required="" placeholder="ex. 시리얼번호1, 시리얼번호2">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">고유 번호</label>
+                        <input class="form-control" type="text" id="input-barcode" required="" placeholder="ex. 바코드">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">IMEI</label>
+                        <input class="form-control" type="text" id="input-imei" required="" placeholder="ex. IMEI">
                     </div>
 
                     <div class="form-group">
@@ -46,10 +56,19 @@
         var nick=$('#input-nick').val();
         var sales=$('#input-sales').val();
         var label=$('#input-label').val();
+        var barcode=$('#input-barcode').val();
+        var imei=$('#input-imei').val();
 
-        if(m=='' || nick=="" || sales=="" || label==""){
+        if(m=='' || nick=="" || sales=="" || label=="" || barcode=="" || imei==""){
             $('#addasset-modal').modal('hide');
             jbalert('시료추가',"시료추가가 실패했습니다.");
+            return;
+        }
+
+
+        if(imei.length<15){
+            $('#addasset-modal').modal('hide');
+            jbalert('시료추가',"IMEI는 15자리의 숫자를 입력해주세요.");
             return;
         }
 
@@ -59,6 +78,8 @@
             nick:nick,
             sales:sales,
             label:label,
+            barcode:barcode,
+            imei:imei,
         },(d,s)=>{
             $('#addasset-modal').modal('hide');
             if(d=="success"){

@@ -14,6 +14,11 @@ TimeAgo.addLocale(ko);
 const timeAgo=new TimeAgo('ko');
 
 
+var multer  = require('multer');
+var upload = multer({ dest: './uploads' });
+
+var XLSX = require('xlsx');
+
 
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
@@ -288,6 +293,170 @@ from rental r,phone p where r.id=(select max(id) from rental group by asset_id h
   
 });
 
+app.post('/excel',upload.single('excelfile'),function(req,res,next){
+	console.log(req.file.path);
+	//todo-processing();
+	var workbook = XLSX.readFile(req.file.path);
+	var fsn=workbook.SheetNames[0];
+	var fs=workbook.Sheets[fsn];
+	const start_row=2;
+
+	var query=`insert into phone values `;
+	for(var i=start_row;;i++){
+		var model_addr="A"+i;
+		var barcode_addr="B"+i;
+		var label_addr="C"+i;
+		var sales_addr="D"+i;
+		var imei_addr="E"+i;
+		if(fs[model_addr]===undefined)break;
+
+		var model=fs[model_addr].v+'';
+		model=model_name_preprocessing(model);
+		model=model.toUpperCase();
+
+		var barcode='';
+		if(fs[barcode_addr]!==undefined)barcode=fs[barcode_addr].v+'';
+		barcode=barcode.toLowerCase();
+
+		var label='';
+		if(fs[label_addr]!==undefined)label=fs[label_addr].v+'';
+		label=label.replace(/ /gi, "");
+		label=label.toUpperCase();
+
+
+		var sales='';
+		if(fs[sales_addr]!==undefined)sales=fs[sales_addr].v+'';
+		sales=sales.toUpperCase();
+
+
+		var imei='';
+		if(fs[imei_addr]!==undefined)imei=fs[imei_addr].v+'';
+		imei=imei_check(imei);
+
+		
+		if(i!=start_row)
+			query=query+`,`;
+		if(imei=='')
+			query=query+`(null,'${model}','${sales}','','${label}','noimei_${model}_${label}','${barcode}')`;
+		else
+			query=query+`(null,'${model}','${sales}','','${label}','${imei}','${barcode}')`;
+		//console.log(model+' '+barcode+' '+label+' '+sales+' '+imei);
+		console.log(`(null,'${model}','${sales}','','${label}','${imei}','${barcode}')`);
+
+	}
+
+	query=query+`on duplicate key update model=values(model),sales=values(sales),label=values(label),barcode=values(barcode);`;
+
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+			res.render('import-excel-file-complete.html');    	
+	    	//res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+
+
+
+    
+	
+});
+
+function imei_check(imei){
+	for(var i=0;i<15;i++)
+	{
+		if(imei[i]!='0'){
+			return imei; 
+		}
+	}
+	return '';
+}
+
+function model_name_preprocessing(name){
+	var idx=name.indexOf('_')
+	if(idx>=0)
+	{
+		name=name.substring(0,idx);
+		return name;
+	}else{
+		var flag=false;
+		for(var i=0;i<name.length;i++)
+		{
+			if(!flag)
+			{
+				if(!isNaN(name[i])==true)flag=true;
+			}
+			else if(flag)
+			{
+				if(!isNaN(name[i])==false){
+					idx=i;break;
+				}
+			}
+		}
+		var s=idx;
+		var e=name.length;
+		var rear=e-s;
+		if(rear>2) name=name.substring(0,idx+1);
+		return name;
+	}
+}
+
+
+app.post('/api/cli/update',function(req,res){
+	var nick=req.body.nick.toLowerCase();
+	var imei=req.body.imei;
+	var query=`update phone set nick='${nick}' where imei='${imei}';`;
+
+	var connection = mysql.createConnection(config);
+    connection.connect();
+    connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.send('success');
+	    }
+	    else res.send('fail');
+	});	
+    connection.end();
+
+});
+
+app.post('/api/cli/update2',function(req,res){
+	var nick=req.body.nick.toLowerCase();
+	var imei=req.body.imei;
+	var id=req.body.id;
+	var query=`update phone set nick='${nick}', imei='${imei}' where id=${id};`;
+
+	var connection = mysql.createConnection(config);
+    connection.connect();
+    connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.send('success');
+	    }
+	    else res.send('fail');
+	});	
+    connection.end();
+
+});
+
+
+app.post('/api/cli/getidbynoimei',function(req,res){
+	var model=req.body.model.toUpperCase();
+	var query=`select id,label from phone where model='${model}' and imei like '%noimei%';`;
+	var connection = mysql.createConnection(config);
+    connection.connect();
+    connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+    connection.end();
+
+});
+
+
+
 
 app.post('/api/phone/crud',function(req,res){
 	var cmd=req.body.cmd;
@@ -317,10 +486,13 @@ app.post('/api/phone/crud',function(req,res){
 		var nick=req.body.nick.toLowerCase();
 		var sales=req.body.sales.toUpperCase();
 		var label=req.body.label.toUpperCase();
+		var barcode=req.body.barcode.toLowerCase();
+		var imei=req.body.imei;
 
 		var query=`insert into phone
-		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`') as tmp
+		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`','${imei}','${barcode}') as tmp
 		 where not exists (select nick from phone where nick='${nick}') limit 1`;
+		 console.log(query);
 		var connection = mysql.createConnection(config);
 	    connection.connect();
 	    connection.query(query, function(err, rows, fields) {
@@ -337,7 +509,13 @@ app.post('/api/phone/crud',function(req,res){
 		var nick=req.body.nick.toLowerCase();
 		var sales=req.body.sales.toUpperCase();
 		var label=req.body.label.toUpperCase();
-		var query=`update phone set model='`+model+`', nick='`+nick+`', sales='`+sales+`', label='`+label+`' where id=`+id;
+		var barcode=req.body.barcode.toLowerCase();
+		var imei=req.body.imei;
+		if(imei=='' || imei=='000000000000000' || imei.length<15)imei='noimei_'+model+'_'+label;
+		var query=`update phone set model='`+model+`', nick='`+nick+`', sales='`+sales+`', label='`+label+`',
+		barcode='${barcode}',
+		imei='${imei}'
+		 where id=`+id;
 		var connection = mysql.createConnection(config);
 	    connection.connect();
 	    connection.query(query, function(err, rows, fields) {

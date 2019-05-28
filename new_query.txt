@@ -1,0 +1,5 @@
+
+
+alter table phone add imei varchar(255) unique;
+
+alter table phone add barcode varchar(255);
