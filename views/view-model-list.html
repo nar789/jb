@@ -1,6 +1,7 @@
 <% include base-top.html %>
       <!-- start page title -->
       <% include addasset-modal.html %>
+      <% include excel-text-modal.html %>
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box">
@@ -21,7 +22,11 @@
                                         </form>
                                             
                                         <h4 class="header-title">  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#addasset-modal">시료추가</button>
-                                            <button class='btn btn-info mr-2' style="float:right;" id='excel-upload-btn' onclick='excel_upload()'><i class="fas fa-upload"></i>&nbsp;엑셀파일업로드</button></h4>
+                                            <button class='btn btn-info mr-2' style="float:right;" id='excel-upload-btn' onclick='excel_upload()'><i class="fas fa-upload"></i>&nbsp;솔루션1.엑셀파일업로드</button>
+
+                                            <button class='btn btn-success mr-2' style="float:right;" id='excel-text-btn' data-toggle="modal" data-target="#excel-text-modal"><i class="far fa-file-alt"></i>&nbsp;솔루션2.엑셀텍스트입력</button>
+
+                                        </h4>
                                         <h2>모델별 목록</h2>
                                         <p class="text-muted font-14 mb-4">
                                             <!--VZW, TMB, SPR///-->

@@ -293,6 +293,65 @@ from rental r,phone p where r.id=(select max(id) from rental group by asset_id h
   
 });
 
+app.post('/api/excel-text-insert',function(req,res){
+	var line=req.body.qry.split('\n');
+	//console.log(line.length);
+
+	var query=`insert into phone values `;
+
+	for(var i=0;i<line.length;i++)
+	{
+		var d=line[i].split('\t');
+		if(d.length!=5)continue;
+
+		var model=d[0]+'';
+		model=model_name_preprocessing(model);
+		model=model.toUpperCase();
+
+		var barcode=d[1]+'';
+		barcode=barcode.toLowerCase();
+
+		var label=d[2]+'';
+		label=label.replace(/ /gi, "");
+		label=label.toUpperCase();
+
+
+		var sales=d[3]+'';
+		sales=sales.toUpperCase();
+
+
+		var imei=d[4]+'';
+		imei=imei_check(imei);
+
+		
+		if(i!=line.length-1 && i!=0)
+			query=query+`,`;
+		if(imei=='')
+			query=query+`(null,'${model}','${sales}','','${label}','noimei_${model}_${label}','${barcode}')`;
+		else
+			query=query+`(null,'${model}','${sales}','','${label}','${imei}','${barcode}')`;
+
+
+		//console.log(model+' '+barcode+' '+label+' '+sales+' '+imei);
+		console.log(`(null,'${model}','${sales}','','${label}','${imei}','${barcode}')`);
+	}
+
+	query=query+`on duplicate key update model=values(model),sales=values(sales),label=values(label),barcode=values(barcode);`;
+	console.log(query);
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query, function(err, rows, fields) {
+	    if (!err){
+	    	res.send('success');
+			//res.render('import-excel-file-complete.html');    	
+	    	//res.json(rows);
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+
+});
+
 app.post('/excel',upload.single('excelfile'),function(req,res,next){
 	console.log(req.file.path);
 	//todo-processing();
@@ -365,13 +424,9 @@ app.post('/excel',upload.single('excelfile'),function(req,res,next){
 });
 
 function imei_check(imei){
-	for(var i=0;i<15;i++)
-	{
-		if(imei[i]!='0'){
-			return imei; 
-		}
-	}
-	return '';
+	if(imei.length<15 || imei=="000000000000000")
+		return '';
+	return imei;
 }
 
 function model_name_preprocessing(name){
