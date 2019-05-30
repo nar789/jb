@@ -1,0 +1,16 @@
+alter table phone add device_state varchar(255);
+alter table phone add to_email varchar(255);
+alter table phone add from_email varchar(255);
+alter table phone add device_comment text;
+alter table phone add last_user int;
+alter table phone add last_dt datetime;
+
+update phone set device_state='',to_email='',from_email='',device_comment='',last_user=1,last_dt=now();
+
+alter table phone add modify(barcode);
+alter table phone add modify(imei);
+
+
+
+
+

@@ -228,11 +228,20 @@ app.get('/view/phone/:model',function(req,res){
 
   if(!logincheck(req,res))return;
 
-
+/*0530목요일 업뎃 라스트유저네임땜시*/
+/*
   var query=`select * from (select A.*,ifnull(B.state,'return') state from
  (select * from phone) A left join
  (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
- on A.id=B.asset_id) K where model='`+model+`';`;
+ on A.id=B.asset_id) K where model='`+model+`';`;*/
+
+
+ var query=`select *,date_format(last_dt,'%Y-%m-%d %H:%i:%s') dt from ((select * from (select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id) K left join (select id as uid,name as last_user_name from user) D on K.last_user=D.uid)) P where model='${model}';`;
+
+
 
   var query2=`select * from (
 select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
@@ -302,7 +311,7 @@ app.post('/api/excel-text-insert',function(req,res){
 	for(var i=0;i<line.length;i++)
 	{
 		var d=line[i].split('\t');
-		if(d.length!=5)continue;
+		if(d.length!=9)continue;
 
 		var model=d[0]+'';
 		model=model_name_preprocessing(model);
@@ -323,20 +332,25 @@ app.post('/api/excel-text-insert',function(req,res){
 		var imei=d[4]+'';
 		imei=imei_check(imei);
 
+		var device_state=d[5]+'';
+		var to_email=d[6]+'';
+		var from_email=d[7]+'';
+		var device_comment=d[8]+'';
+
 		
 		if(i!=line.length-1 && i!=0)
 			query=query+`,`;
 		if(imei=='')
-			query=query+`(null,'${model}','${sales}','','${label}','noimei_${model}_${label}','${barcode}')`;
+			query=query+`(null,'${model}','${sales}','','${label}',concat('noimei_',model,'_',label,'_',floor(rand()*100000)),'${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())`;
 		else
-			query=query+`(null,'${model}','${sales}','','${label}','${imei}','${barcode}')`;
+			query=query+`(null,'${model}','${sales}','','${label}','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())`;
 
 
 		//console.log(model+' '+barcode+' '+label+' '+sales+' '+imei);
-		console.log(`(null,'${model}','${sales}','','${label}','${imei}','${barcode}')`);
+		console.log(`(null,'${model}','${sales}','','${label}','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())`);
 	}
 
-	query=query+`on duplicate key update model=values(model),sales=values(sales),label=values(label),barcode=values(barcode);`;
+	query=query+`on duplicate key update model=values(model),sales=values(sales),label=values(label),nick=values(nick),imei=values(imei),barcode=values(barcode),device_state=values(device_state),to_email=values(to_email),from_email=values(from_email),device_comment=values(device_comment);`;
 	console.log(query);
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -450,6 +464,7 @@ function model_name_preprocessing(name){
 				}
 			}
 		}
+		if(idx<0)return name;
 		var s=idx;
 		var e=name.length;
 		var rear=e-s;
@@ -543,10 +558,18 @@ app.post('/api/phone/crud',function(req,res){
 		var label=req.body.label.toUpperCase();
 		var barcode=req.body.barcode.toLowerCase();
 		var imei=req.body.imei;
-
+		var device_state=req.body.device_state;
+		var to_email=req.body.to_email;
+		var from_email=req.body.from_email;
+		var device_comment=req.body.device_comment;
+		if(req.session.userid===undefined)req.session.userid=0;
+		/*
 		var query=`insert into phone
-		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`','${imei}','${barcode}') as tmp
-		 where not exists (select nick from phone where nick='${nick}') limit 1`;
+		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now()) as tmp
+		 where not exists (select nick from phone where nick='${nick}') limit 1`;*/
+		 var query=`insert into phone values 
+ (null,'${model}','${sales}','${nick}','${label}','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())
+ on duplicate key update model=values(model),sales=values(sales),label=values(label),nick=values(nick),imei=values(imei),barcode=values(barcode),device_state=values(device_state),to_email=values(to_email),from_email=values(from_email),device_comment=values(device_comment);`;
 		 console.log(query);
 		var connection = mysql.createConnection(config);
 	    connection.connect();
@@ -558,7 +581,82 @@ app.post('/api/phone/crud',function(req,res){
 		});	
 	    connection.end();
 
-	}else if(cmd=='update'){
+	}
+	else if(cmd=='mmupdate'){
+
+		var model=req.body.model.toUpperCase();
+		var sales=req.body.sales.toUpperCase();
+		
+		var device_state=req.body.device_state;
+		var to_email=req.body.to_email;
+		var from_email=req.body.from_email;
+		var device_comment=req.body.device_comment;
+
+		var query=`update phone set `;
+		if(sales!='')
+			query=query+`sales='`+sales+`', `;
+		if(device_state!='')
+			query=query+`device_state='${device_state}',`;
+		if(to_email!='')
+			query=query+`to_email='${to_email}',`;
+		if(from_email!='')
+			query=query+`from_email='${from_email}',`;
+		if(device_comment!='')
+			query=query+`device_comment='${device_comment}',`;
+
+		query=query+`last_user=${req.session.userid},
+		last_dt=now()
+		 where model in (${model});`;
+		 console.log(query);
+		var connection = mysql.createConnection(config);
+	    connection.connect();
+	    connection.query(query, function(err, rows, fields) {
+		    if (!err){
+		    	res.send('success');
+		    }
+		    else res.send('fail');
+		});	
+	    connection.end();
+
+	}
+	else if(cmd=='mupdate'){
+
+		var id=req.body.id;
+		var model=req.body.model.toUpperCase();
+		var sales=req.body.sales.toUpperCase();
+		
+		var device_state=req.body.device_state;
+		var to_email=req.body.to_email;
+		var from_email=req.body.from_email;
+		var device_comment=req.body.device_comment;
+
+		var query=`update phone set model='`+model+`',`;
+		if(sales!='')
+			query=query+`sales='`+sales+`', `;
+		if(device_state!='')
+			query=query+`device_state='${device_state}',`;
+		if(to_email!='')
+			query=query+`to_email='${to_email}',`;
+		if(from_email!='')
+			query=query+`from_email='${from_email}',`;
+		if(device_comment!='')
+			query=query+`device_comment='${device_comment}',`;
+
+		query=query+`last_user=${req.session.userid},
+		last_dt=now()
+		 where id in ${id};`;
+
+		var connection = mysql.createConnection(config);
+	    connection.connect();
+	    connection.query(query, function(err, rows, fields) {
+		    if (!err){
+		    	res.send('success');
+		    }
+		    else res.send('fail');
+		});	
+	    connection.end();
+	}
+	else if(cmd=='update'){
 		var id=req.body.id;
 		var model=req.body.model.toUpperCase();
 		var nick=req.body.nick.toLowerCase();
@@ -566,10 +664,24 @@ app.post('/api/phone/crud',function(req,res){
 		var label=req.body.label.toUpperCase();
 		var barcode=req.body.barcode.toLowerCase();
 		var imei=req.body.imei;
+
+		var device_state=req.body.device_state;
+		var to_email=req.body.to_email;
+		var from_email=req.body.from_email;
+		var device_comment=req.body.device_comment;
+
+
+
 		if(imei=='' || imei=='000000000000000' || imei.length<15)imei='noimei_'+model+'_'+label;
 		var query=`update phone set model='`+model+`', nick='`+nick+`', sales='`+sales+`', label='`+label+`',
 		barcode='${barcode}',
-		imei='${imei}'
+		imei='${imei}',
+		device_state='${device_state}',
+		to_email='${to_email}',
+		from_email='${from_email}',
+		device_comment='${device_comment}',
+		last_user=${req.session.userid},
+		last_dt=now()
 		 where id=`+id;
 		var connection = mysql.createConnection(config);
 	    connection.connect();
@@ -580,7 +692,37 @@ app.post('/api/phone/crud',function(req,res){
 		    else res.send('fail');
 		});	
 	    connection.end();
-	}else if(cmd=='delete'){
+	}
+	else if(cmd=='mmdelete')
+	{
+		var model=req.body.model.toUpperCase();
+		var query=`delete from phone where model in (${model})`;
+		console.log(query);
+		var connection = mysql.createConnection(config);
+	    connection.connect();
+	    connection.query(query, function(err, rows, fields) {
+		    if (!err){
+		    	res.send('success');
+		    }
+		    else res.send('fail');
+		});	
+	    connection.end();
+	}
+	else if(cmd=='mdelete')
+	{
+		var id=req.body.id;
+		var query=`delete from phone where id in ${id}`;
+		var connection = mysql.createConnection(config);
+	    connection.connect();
+	    connection.query(query, function(err, rows, fields) {
+		    if (!err){
+		    	res.send('success');
+		    }
+		    else res.send('fail');
+		});	
+	    connection.end();
+	}
+	else if(cmd=='delete'){
 		var id=req.body.id;
 		var query=`delete from phone where id=`+id;
 		var connection = mysql.createConnection(config);

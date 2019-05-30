@@ -2,6 +2,7 @@
       <!-- start page title -->
       <% include addasset-modal.html %>
       <% include updateasset-modal.html %>
+      <% include multi-updateasset-modal.html %>
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box">
@@ -16,7 +17,10 @@
                                 <div class="card">
                                     <div class="card-body">
 
-                                        <h4 class="header-title">  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#addasset-modal">시료추가</button></h4>
+                                        <h4 class="header-title">  <button class='btn btn-primary' style="float:right;" id='data-input' data-toggle="modal" data-target="#addasset-modal">시료추가</button>
+                                            <button class='btn btn-info mr-2' style="float:right;" id='data-update' onclick="massetupdate_click('<%=model%>')">시료편집</button>
+                                        </h4>
+                                        
                                         <h2 style="display: inline-block;" class="mr-3"><%=model%></h2>
                                         <h5 style="display: inline-block;">
                                             <b style="color:#fa5c7c;">대여중 <%=rows2[0].rental_cnt%>대</b>
@@ -31,6 +35,12 @@
                                             <thead>
                                                 <tr>
                                                     <th>번호</th>
+                                                    <th>
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="allcheck">
+                                                            <label class="custom-control-label" for="allcheck">&nbsp;</label>
+                                                        </div>
+                                                    </th>
                                                     <th>모델</th>
                                                     <th>시리얼번호</th>
                                                     <th>바코드</th>
@@ -39,6 +49,12 @@
                                                     <th>사업자</th>
                                                     <th>상태</th>
                                                     <th>대여정보</th>
+                                                    <th>이관/수령</th>
+                                                    <th>이관받은사람</th>
+                                                    <th>수령해준사람</th>
+                                                    <th>특이사항</th>
+                                                    <th>최근수정</th>
+                                                    <th>마지막업데이트</th>
                                                     <th>편집</th>
                                                 </tr>
                                             </thead>
@@ -49,6 +65,12 @@
                                                 <% for(var i=0;i<rows.length;i++) { %>
                                                 <tr>
                                                     <td><%=(i+1)%></td>
+                                                    <td>
+                                                         <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" id="check-<%=rows[i].id%>">
+                                                            <label class="custom-control-label" for="check-<%=rows[i].id%>">&nbsp;</label>
+                                                        </div>
+                                                    </td>
                                                     <td><%=rows[i].model%></td>
                                                     <td><%=rows[i].nick%></td>
                                                     <td><%=rows[i].barcode%></td>
@@ -67,7 +89,13 @@
                                                         <% } %>
                                                     </td>
                                                     <td><a href='/view/history/<%=rows[i].id%>'><button class='btn btn-primary'>대여정보 보기</button></a></td>
-                                                    <td><button class='btn btn-info' onclick="assetupdate(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].nick%>','<%=rows[i].sales%>','<%=rows[i].label%>','<%=rows[i].barcode%>','<%=rows[i].imei%>')">시료정보 편집</button></td>
+                                                    <td><%=rows[i].device_state%></td>
+                                                    <td><%=rows[i].to_email%></td>
+                                                    <td><%=rows[i].from_email%></td>
+                                                    <td><%=rows[i].device_comment%></td>
+                                                    <td><a href='/view/history/user/<%=rows[i].uid%>'><%=rows[i].last_user_name%></a></td>
+                                                    <td onclick="javascript:jbalert('시간','<%=rows[i].dt%>');"><a href='javascript:void(0);'><%=rows[i].dt%></a></td>
+                                                    <td><button class='btn btn-info' onclick="assetupdate(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].nick%>','<%=rows[i].sales%>','<%=rows[i].label%>','<%=rows[i].barcode%>','<%=rows[i].imei%>','<%=rows[i].device_state%>','<%=rows[i].to_email%>','<%=rows[i].from_email%>','<%=rows[i].device_comment%>')">시료정보 편집</button></td>
                                                 </tr>
                                                 <% } %>
                                             </tbody>
@@ -81,7 +109,8 @@
 <% include base-bottom.html %>
 <script>
     egg_type=6;
-    function assetupdate(id,model,nick,sales,label,barcode,imei) {
+
+    function assetupdate(id,model,nick,sales,label,barcode,imei,device_state,to_email,from_email,device_comment) {
         $('#aid').val(id);
         $('#update-model').val(model);
         $('#update-nick').val(nick);
@@ -89,6 +118,55 @@
         $('#update-label').val(label);
         $('#update-barcode').val(barcode);
         $('#update-imei').val(imei);
+        $('#update-device_state').val(device_state);
+        $('#update-to_email').val(to_email);
+        $('#update-from_email').val(from_email);
+        $('#update-device_comment').val(device_comment);
         $('#updateasset-modal').modal('show');
     }
+
+    $("#allcheck").click(function(){
+        var chk = $(this).is(":checked");//.attr('checked');
+        if(chk) $(".custom-control-input").prop('checked', true);
+        else  $(".custom-control-input").prop('checked', false);
+    });
+
+
+    function massetupdate_click(model) {
+        $('#mupdate-model').val(model);
+        var ids=[];
+        $("input:checkbox").each(function(){
+            var $this = $(this);
+            if($this.is(":checked")){
+                if($this.attr('id')!="allcheck"){
+                    var id=$this.attr('id').split('-');
+                    id=id[1];
+                    ids.push(id);
+                }
+            }else{
+                
+            }
+        });
+        if(ids.length==0){jbalert('시료편집','체크박스를 통해 편집할 시료를 선택해주세요.');return;}
+        else{
+            var str='(';
+            for(var i=0;i<ids.length;i++)
+            {
+                str=str+ids[i];
+                if(i!=ids.length-1)
+                {
+                    str=str+',';
+                }
+            }
+            str=str+')';
+            $('#maid').val(str);
+            $('#mupdateasset-modal').modal('show');    
+        }
+        
+        
+
+    }
+
+    
+
 </script>

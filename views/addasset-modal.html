@@ -15,12 +15,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="model">고유 번호</label>
+                        <label for="model">시리얼번호</label>
                         <input class="form-control" type="text" id="input-nick" required="" placeholder="ex. 시리얼번호1, 시리얼번호2">
                     </div>
 
                     <div class="form-group">
-                        <label for="model">고유 번호</label>
+                        <label for="model">바코드</label>
                         <input class="form-control" type="text" id="input-barcode" required="" placeholder="ex. 바코드">
                     </div>
 
@@ -38,6 +38,32 @@
                         <label for="model">라벨</label>
                         <input class="form-control" type="text" id="input-label" required="" placeholder="ex. CTS1">
                     </div>
+
+                    <div class="form-group">
+                        <label for="model">이관/수령</label>
+                        <select class="form-control" id="input-device_state">
+                            <option>이관</option>
+                            <option>수령</option>
+                        </select>
+                        <!--<input class="form-control" type="text" id="input-device_state" required="" placeholder="ex. CTS1">//-->
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="model">이관받은사람</label>
+                        <input class="form-control" type="text" id="input-to_email" required="" placeholder="ex. 박소담">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">수령해준사람</label>
+                        <input class="form-control" type="text" id="input-from_email" required="" placeholder="ex. 송강호">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">특이사항</label>
+                        <input class="form-control" type="text" id="input-device_comment" required="" placeholder="ex. 특이사항1">
+                    </div>
+
 
                     <div class="form-group text-center">
                         <button class="btn btn-primary" id='add-btn'>시료추가</button>
@@ -59,7 +85,13 @@
         var barcode=$('#input-barcode').val();
         var imei=$('#input-imei').val();
 
-        if(m=='' || nick=="" || sales=="" || label=="" || barcode=="" || imei==""){
+        var device_state=$('#input-device_state').val();
+        var to_email=$('#input-to_email').val();
+        var from_email=$('#input-from_email').val();
+        var device_comment=$('#input-device_comment').val();
+
+
+        if(m=='' || nick=="" || sales=="" || label=="" || barcode=="" || imei=="" || device_state=="" || to_email == "" || from_email == "" || device_state == ""){
             $('#addasset-modal').modal('hide');
             jbalert('시료추가',"시료추가가 실패했습니다.");
             return;
@@ -80,6 +112,10 @@
             label:label,
             barcode:barcode,
             imei:imei,
+            device_state:device_state,
+            to_email:to_email,
+            from_email:from_email,
+            device_comment:device_comment,
         },(d,s)=>{
             $('#addasset-modal').modal('hide');
             if(d=="success"){

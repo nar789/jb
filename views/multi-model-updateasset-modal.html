@@ -1,0 +1,113 @@
+ <div id="mmupdateasset-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <div class="text-center mt-2 mb-4">
+                    <h1>모델별 시료정보 편집</h1>
+                </div>                
+
+                    <div class="form-group">
+                        <label for="model">모델 이름</label>
+                        <input class="form-control" type="text" id="mupdate-model" required="" placeholder="ex. SM-T385">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">사업자</label>
+                        <input class="form-control" type="text" id="mupdate-sales" required="" placeholder="ex. skc">
+                    </div>
+
+                     <div class="form-group">
+                        <label for="model">이관/수령</label>
+                        <select class="form-control" id="mupdate-device_state">
+                            <option></option>
+                            <option>이관</option>
+                            <option>수령</option>
+                        </select>
+                        <!--<input class="form-control" type="text" id="input-device_state" required="" placeholder="ex. CTS1">//-->
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="model">이관받은사람</label>
+                        <input class="form-control" type="text" id="mupdate-to_email" required="" placeholder="ex. 박소담">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">수령해준사람</label>
+                        <input class="form-control" type="text" id="mupdate-from_email" required="" placeholder="ex. 송강호">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model">특이사항</label>
+                        <input class="form-control" type="text" id="mupdate-device_comment" required="" placeholder="ex. 특이사항1">
+                    </div>
+
+
+
+                    <div class="form-group text-center">
+                        <button class="btn btn-info" id='mupdate-btn'>시료정보 수정</button>
+                        <button class="btn btn-danger" id='mdel-btn'>시료정보 삭제</button>
+                    </div>
+
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+
+
+    function asset_delete_ok(argument) {
+        var model=$('#mupdate-model').val();
+        $.post('/api/phone/crud',{
+            cmd:'mmdelete',
+            model:model,
+        },(d,s)=>{
+            $('#mmupdateasset-modal').modal('hide');
+            if(d=="success"){
+                jbalert('시료정보 삭제',"시료정보 삭제가 완료되었습니다.");
+            }else{
+                jbalert('시료정보 삭제',"시료정보 삭제가 실패했습니다.");
+            }
+            setTimeout(()=>{location.replace('/view/phone')},1000);
+
+        });
+    }
+
+    $('#mdel-btn').click(()=>{
+        $('#mmupdateasset-modal').modal('hide');
+        confirm("시료정보 삭제","시료정보를 정말 삭제하시겠습니까?",asset_delete_ok);
+    });
+
+    $('#mupdate-btn').click(()=>{
+        var m=$('#mupdate-model').val();
+        var sales=$('#mupdate-sales').val();
+
+        var device_state=$('#mupdate-device_state').val();
+        var to_email=$('#mupdate-to_email').val();
+        var from_email=$('#mupdate-from_email').val();
+        var device_comment=$('#mupdate-device_comment').val();
+
+        $.post('/api/phone/crud',{
+            cmd:'mmupdate',
+            model:m,
+            sales:sales,
+            device_state:device_state,
+            to_email:to_email,
+            from_email:from_email,
+            device_comment:device_comment,
+        },(d,s)=>{
+            $('#mmupdateasset-modal').modal('hide');
+            if(d=="success"){
+                jbalert('시료정보 수정',"시료정보 수정이 완료되었습니다.");
+            }else{
+                jbalert('시료정보 수정',"시료정보 수정이 실패했습니다.");
+            }
+            setTimeout(()=>{location.reload();},1000);
+
+        });
+    });
+ 
+</script>
