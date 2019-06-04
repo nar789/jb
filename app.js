@@ -477,7 +477,17 @@ function model_name_preprocessing(name){
 app.post('/api/cli/update',function(req,res){
 	var nick=req.body.nick.toLowerCase();
 	var imei=req.body.imei;
-	var query=`update phone set nick='${nick}' where imei='${imei}';`;
+	var model=req.body.model;
+	var sales=req.body.sales;
+
+	var query=``;
+	if(sales===null)
+	{
+		query=`update phone set model='${model}', nick='${nick}' where imei='${imei}';`;
+	}else{
+		query=`update phone set model='${model}', nick='${nick}', sales='${sales}' where imei='${imei}';`;
+	}
+	
 
 	var connection = mysql.createConnection(config);
     connection.connect();
