@@ -481,13 +481,13 @@ app.post('/api/cli/update',function(req,res){
 	var sales=req.body.sales;
 
 	var query=``;
-	if(sales===null)
+	if(sales===null || sales=='')
 	{
 		query=`update phone set model='${model}', nick='${nick}' where imei='${imei}';`;
 	}else{
 		query=`update phone set model='${model}', nick='${nick}', sales='${sales}' where imei='${imei}';`;
 	}
-	
+	console.log(query);
 
 	var connection = mysql.createConnection(config);
     connection.connect();
@@ -568,6 +568,21 @@ app.post('/api/phone/crud',function(req,res){
 		var label=req.body.label.toUpperCase();
 		var barcode=req.body.barcode.toLowerCase();
 		var imei=req.body.imei;
+		if(imei===undefined || imei=='')
+		{
+			imei = `concat('noimei_',model,'_',label,'_',floor(rand()*100000))`;
+		}
+		else
+			imei=`'${imei}'`;
+
+		if(barcode===undefined || barcode=='')
+		{
+			barcode = `concat('nobarcode_',model,'_',label,'_',floor(rand()*100000))`;
+		}
+		else
+			barcode=`'${barcode}'`;
+
+
 		var device_state=req.body.device_state;
 		var to_email=req.body.to_email;
 		var from_email=req.body.from_email;
@@ -577,10 +592,24 @@ app.post('/api/phone/crud',function(req,res){
 		var query=`insert into phone
 		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now()) as tmp
 		 where not exists (select nick from phone where nick='${nick}') limit 1`;*/
-		 var query=`insert into phone values 
- (null,'${model}','${sales}','${nick}','${label}','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())
- on duplicate key update model=values(model),sales=values(sales),label=values(label),nick=values(nick),imei=values(imei),barcode=values(barcode),device_state=values(device_state),to_email=values(to_email),from_email=values(from_email),device_comment=values(device_comment);`;
-		 console.log(query);
+		 var query=``;
+		 if(sales=='')
+		 {
+		 	query=`insert into phone values 
+		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())
+		 on duplicate key update model=values(model),label=values(label),nick=values(nick),imei=values(imei);`;
+
+		 }else{
+		 query=`insert into phone values 
+		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())
+		 on duplicate key update model=values(model),sales=values(sales),label=values(label),nick=values(nick),imei=values(imei);`;
+		}
+		if(label=='')
+		{
+		 query=query.replace(',label=values(label)','');
+		}
+
+		console.log(query);
 		var connection = mysql.createConnection(config);
 	    connection.connect();
 	    connection.query(query, function(err, rows, fields) {
@@ -682,10 +711,25 @@ app.post('/api/phone/crud',function(req,res){
 
 
 
-		if(imei=='' || imei=='000000000000000' || imei.length<15)imei='noimei_'+model+'_'+label;
-		var query=`update phone set model='`+model+`', nick='`+nick+`', sales='`+sales+`', label='`+label+`',
-		barcode='${barcode}',
-		imei='${imei}',
+		if(imei=='' || imei=='000000000000000' || imei.length<15)
+		{
+			imei = `concat('noimei_',model,'_',label,'_',floor(rand()*100000))`;
+		}else{
+			imei = `'${imei}'`;
+		}
+
+		if(barcode=='' || barcode===undefined)
+		{
+			barcode = `concat('nobarcode_',model,'_',label,'_',floor(rand()*100000))`;
+		}else{
+			barcode = `'${barcode}'`;
+		}
+		var query=`update phone set model='`+model+`', nick='`+nick+`',`
+		if(sales!='')
+		 	query=query+`sales='${sales}', `;
+		query=query+`label='`+label+`',
+		barcode=${barcode},
+		imei=${imei},
 		device_state='${device_state}',
 		to_email='${to_email}',
 		from_email='${from_email}',
@@ -735,6 +779,7 @@ app.post('/api/phone/crud',function(req,res){
 	else if(cmd=='delete'){
 		var id=req.body.id;
 		var query=`delete from phone where id=`+id;
+		console.log(query);
 		var connection = mysql.createConnection(config);
 	    connection.connect();
 	    connection.query(query, function(err, rows, fields) {

@@ -73,7 +73,11 @@
                                                     </td>
                                                     <td><%=rows[i].model%></td>
                                                     <td><%=rows[i].nick%></td>
+                                                    <% if(rows[i].barcode.indexOf('nobarcode')>=0){ %>
+                                                        <td></td>
+                                                    <% } else { %>
                                                     <td><%=rows[i].barcode%></td>
+                                                    <% } %>
                                                     <% if(rows[i].imei.indexOf('noimei')>=0){ %>
                                                         <td></td>
                                                     <% } else { %>
