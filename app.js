@@ -19,6 +19,8 @@ var upload = multer({ dest: './uploads' });
 
 var XLSX = require('xlsx');
 
+var randomColor = require('randomColor');
+
 
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
@@ -105,7 +107,7 @@ from rental r,phone p where r.id=(select max(id) from rental group by asset_id h
 					  	connection3.connect();
 					  	connection3.query(query3, function(err, rows3, fields) {
 					  		if (!err){
-	  								res.render('index.html',{user:req.session,rows:rows,rows2:rows2,rows3:rows3});
+	  								res.render('index.html',{user:req.session,rows:rows,rows2:rows2,rows3:rows3,randomColor:randomColor});
 	  						}else res.send('fail');
 	  					});
 	  					connection3.end();
@@ -473,7 +475,6 @@ function model_name_preprocessing(name){
 	}
 }
 
-
 app.post('/api/cli/update',function(req,res){
 	var nick=req.body.nick.toLowerCase();
 	var imei=req.body.imei;
@@ -563,11 +564,17 @@ app.post('/api/phone/crud',function(req,res){
 	}else */
 	if(cmd=='create'){
 		var model=req.body.model.toUpperCase();
-		var nick=req.body.nick.toLowerCase();
+		var nick=req.body.serial.toLowerCase();
 		var sales=req.body.sales.toUpperCase();
 		var label=req.body.label.toUpperCase();
 		var barcode=req.body.barcode.toLowerCase();
 		var imei=req.body.imei;
+		var email='';
+		if(req.body.email!=undefined && req.body.email!='')
+		{
+			email=req.body.email;
+		}
+
 		if(imei===undefined || imei=='')
 		{
 			imei = `concat('noimei_',model,'_',label,'_',floor(rand()*100000))`;
@@ -587,23 +594,30 @@ app.post('/api/phone/crud',function(req,res){
 		var to_email=req.body.to_email;
 		var from_email=req.body.from_email;
 		var device_comment=req.body.device_comment;
-		if(req.session.userid===undefined)req.session.userid=0;
+		var update_user=req.session.userid;
+		if(req.session.userid===undefined && email!='')  
+		{
+			update_user=`(select id from user where email='${email}')`;
+		}
 		/*
 		var query=`insert into phone
 		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now()) as tmp
 		 where not exists (select nick from phone where nick='${nick}') limit 1`;*/
 		 var query=``;
-		 if(sales=='')
-		 {
-		 	query=`insert into phone values 
-		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())
-		 on duplicate key update model=values(model),label=values(label),nick=values(nick),imei=values(imei);`;
-
-		 }else{
 		 query=`insert into phone values 
-		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now())
-		 on duplicate key update model=values(model),sales=values(sales),label=values(label),nick=values(nick),imei=values(imei);`;
+		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${update_user},now())
+		 on duplicate key update model=values(model),sales=values(sales),label=values(label),nick=values(nick),imei=values(imei),barcode=values(barcode),last_user=values(last_user),last_dt=values(last_dt);`;
+
+		 if(barcode=='')
+		 {
+		 	query=query.replace(',barcode=values(barcode)','');		
+		 }
+
+		if(sales=='')
+		{
+		  query=query.replace(',sales=values(sales)','');	
 		}
+
 		if(label=='')
 		{
 		 query=query.replace(',label=values(label)','');
@@ -802,6 +816,24 @@ app.post('/api/phone/crud',function(req,res){
 		    		res.send(k+'');
 		    	}else res.send('fail');
 
+		    }
+		    else res.send('fail');
+		});	
+	    connection.end();
+
+	}else if(cmd=='check_v2'){
+
+		var s=req.body.serial;
+		var imei=req.body.imei;
+		var query=`select * from phone where nick like '%${s}%' or imei='${imei}';`;
+		var connection = mysql.createConnection(config);
+	    connection.connect();
+	    connection.query(query, function(err, rows, fields) {
+
+		    if (!err){
+		    	if(rows.length==1){
+		    		res.json(rows[0]);
+		    	}else res.send('fail');
 		    }
 		    else res.send('fail');
 		});	
@@ -1282,7 +1314,7 @@ app.post('/api/filter/update',function(req,res){
 app.get('/view/chart',function(req,res){
 	if(!logincheck(req,res))return;
 
-	res.render('view-chart.html',{user:req.session});
+	res.render('view-chart.html',{user:req.session,randomColor:randomColor});
 });
 
 app.get('/view/chart2',function(req,res){

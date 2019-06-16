@@ -37,11 +37,23 @@
     $('#login-btn').click(()=>{
 
         var email=$('#login-emailaddress').val();
+
+
+
+
         if(email===''){
             $('#login-modal').modal('hide');
             jbalert('로그인 실패','가입된 이메일을 찾을 수 없습니다.');
             return;
         }
+
+        //filter v1.4.0--START
+        if(email.indexOf('@')<0){
+            email=email+'@samsung.com';
+        }
+        //filter v1.4.0--END
+
+        
         $.post('/api/login',{
             email:email,
         },(d,s)=>{

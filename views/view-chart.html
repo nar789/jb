@@ -133,13 +133,21 @@
             var c='';
             var lbs=[];
             var vals=[];
+            var bg=[];
+
             for(var i=0;i<d.length;i++){
                 lbs.push(d[i].model);
                 vals.push(d[i].cnt);
+                //bg.push('#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'));
+                bg.push(`<%= randomColor({
+                        hue:'blue',
+                        luminosity:'light',
+                        format:'hex',
+                    }) %>`);
             }
             $('#chart-group').html(`<canvas id="model-chart"></canvas>`);
 
-            respChart($("#model-chart"),"Doughnut",{labels:lbs,datasets:[{data:vals,backgroundColor:["#727cf5","#fa5c7c","#0acf97","#ebeff2"],borderColor:"transparent",borderWidth:"3"}]},{maintainAspectRatio:!1,cutoutPercentage:60,legend:{display:!1}});
+            respChart($("#model-chart"),"Doughnut",{labels:lbs,datasets:[{data:vals,backgroundColor:bg,borderColor:"transparent",borderWidth:"3"}]},{maintainAspectRatio:!1,cutoutPercentage:60,legend:{display:!1}});
         });
 
 

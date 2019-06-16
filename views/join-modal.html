@@ -41,6 +41,15 @@
             jbalert('오류','회원가입이 실패했습니다. 관리자에게 문의하세요.');
             return;
         }
+
+
+        //filter v1.4.0--START
+        if(email.indexOf('@')<0){
+            email=email+'@samsung.com';
+        }
+        //filter v1.4.0--END
+
+        
         $.post('/api/join',{
             name:name,
             email:email,
