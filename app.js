@@ -566,8 +566,15 @@ app.post('/api/phone/crud',function(req,res){
 		var model=req.body.model.toUpperCase();
 		var nick=req.body.serial.toLowerCase();
 		var sales=req.body.sales.toUpperCase();
-		var label=req.body.label.toUpperCase();
-		var barcode=req.body.barcode.toLowerCase();
+		var label=req.body.label;
+		if(label!='' && label!=undefined)
+			label=label.toUpperCase();
+		else label='';
+		var barcode=req.body.barcode;
+		if(barcode!='' && barcode!=undefined)
+			barcode=barcode.toLowerCase();
+		else
+			barcode='';
 		var imei=req.body.imei;
 		var email='';
 		if(req.body.email!=undefined && req.body.email!='')
@@ -575,7 +582,7 @@ app.post('/api/phone/crud',function(req,res){
 			email=req.body.email;
 		}
 
-		if(imei===undefined || imei=='')
+		if(imei=='' || imei=='000000000000000' || imei.length<15 || imei===undefined)
 		{
 			imei = `concat('noimei_',model,'_',label,'_',floor(rand()*100000))`;
 		}
@@ -604,10 +611,17 @@ app.post('/api/phone/crud',function(req,res){
 		select * from (select null,'`+model+`','`+sales+`','`+nick+`','`+label+`','${imei}','${barcode}','${device_state}','${to_email}','${from_email}','${device_comment}',${req.session.userid},now()) as tmp
 		 where not exists (select nick from phone where nick='${nick}') limit 1`;*/
 		 var query=``;
+
+		 /*
 		 query=`insert into phone values 
 		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${update_user},now())
 		 on duplicate key update model=values(model),sales=values(sales),label=values(label),nick=values(nick),imei=values(imei),barcode=values(barcode),last_user=values(last_user),last_dt=values(last_dt);`;
+		 */
+		 //v1.4.2
+		 query=`replace into phone values 
+		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${update_user},now())`;
 
+		 /*
 		 if(barcode=='')
 		 {
 		 	query=query.replace(',barcode=values(barcode)','');		
@@ -621,7 +635,7 @@ app.post('/api/phone/crud',function(req,res){
 		if(label=='')
 		{
 		 query=query.replace(',label=values(label)','');
-		}
+		}*/
 
 		console.log(query);
 		var connection = mysql.createConnection(config);
@@ -725,7 +739,7 @@ app.post('/api/phone/crud',function(req,res){
 
 
 
-		if(imei=='' || imei=='000000000000000' || imei.length<15)
+		if(imei=='' || imei=='000000000000000' || imei.length<15 || imei===undefined)
 		{
 			imei = `concat('noimei_',model,'_',label,'_',floor(rand()*100000))`;
 		}else{
