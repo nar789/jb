@@ -563,6 +563,7 @@ app.post('/api/phone/crud',function(req,res){
 	    connection.end();
 	}else */
 	if(cmd=='create'){
+		var data_id=req.body.id || 'NULL';
 		var model=req.body.model.toUpperCase();
 		var nick=req.body.serial.toLowerCase();
 		var sales=req.body.sales.toUpperCase();
@@ -619,7 +620,7 @@ app.post('/api/phone/crud',function(req,res){
 		 */
 		 //v1.4.2
 		 query=`replace into phone values 
-		 (null,'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${update_user},now())`;
+		 (${data_id},'${model}','${sales}','${nick}','${label}',${imei},${barcode},'${device_state}','${to_email}','${from_email}','${device_comment}',${update_user},now())`;
 
 		 /*
 		 if(barcode=='')
