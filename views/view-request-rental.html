@@ -224,11 +224,12 @@
         var aids=[];
         for(var i=0;i<ks.length;i++)
         {  
+            /*
             if((type==1 && ks[i].state=='rental') || (type==2 && ks[i].state=='return')) 
             {
                 jbalert('대여/반납신청 실패','대여중인 기기를 대여하려고 하거나, 반납중인 기기를 반납하려고 합니다.');
                 return;
-            }
+            }*/
             aids.push(ks[i].idx);
         }
         $.post('/api/rental',{

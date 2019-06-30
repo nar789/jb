@@ -78,7 +78,7 @@ app.get('/',function(req,res){
 (select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
  left join
 (select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
-from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model`;
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model limit 9`;
 
   	
 	var end=date_to_str(new Date());
