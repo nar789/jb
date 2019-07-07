@@ -73,12 +73,12 @@ app.get('/',function(req,res){
     if(req.session===undefined){
     	req.session.logined=false;
     }
-
+/*
   	var query=`select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
 (select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
  left join
 (select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
-from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model limit 9`;
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model limit 9`;*/
 
   	
 	var end=date_to_str(new Date());
@@ -92,10 +92,10 @@ from rental r,phone p where r.id=(select max(id) from rental group by asset_id h
   	var query2=`select model,count(*) as cnt from rental,phone where phone.id=rental.asset_id and write_dt between '${start}' and '${end} 23:59:59' group by model;`;
   	var query3=`select count(if(state='rental',state,null)) rental_cnt,count(if(state='return',state,null)) return_cnt,date_format(write_dt,"%m월%d일") d from rental
   where write_dt between '${start}' and '${end} 23:59:59' group by date(write_dt);`;
-  	var connection = mysql.createConnection(config);
-  	connection.connect();
-  	connection.query(query, function(err, rows, fields) {
-	  if (!err){
+  	//var connection = mysql.createConnection(config);
+  	//connection.connect();
+  	//connection.query(query, function(err, rows, fields) {
+//	  if (!err){
 
 	  		
 	  		var connection2 = mysql.createConnection(config);
@@ -107,7 +107,8 @@ from rental r,phone p where r.id=(select max(id) from rental group by asset_id h
 					  	connection3.connect();
 					  	connection3.query(query3, function(err, rows3, fields) {
 					  		if (!err){
-	  								res.render('index.html',{user:req.session,rows:rows,rows2:rows2,rows3:rows3,randomColor:randomColor});
+	  								//res.render('index.html',{user:req.session,rows:rows,rows2:rows2,rows3:rows3,randomColor:randomColor});
+	  								res.render('index.html',{user:req.session,rows2:rows2,rows3:rows3,randomColor:randomColor});
 	  						}else res.send('fail');
 	  					});
 	  					connection3.end();
@@ -118,10 +119,10 @@ from rental r,phone p where r.id=(select max(id) from rental group by asset_id h
 	  		connection2.end();
 
 
-	  }
-	  else res.send('fail');
-	});
-  connection.end();
+//	  }
+//	  else res.send('fail');
+//	});
+//  connection.end();
   	
 });
 
@@ -228,6 +229,13 @@ app.get('/api/logout',function(req,res){
 app.get('/view/phone/:model',function(req,res){
   var model=req.params.model;
 
+  var page=req.query.page;
+  var search=req.query.search;
+
+  if(page===undefined || page=='')page=1;
+  page=parseInt(page);
+  var start=(page-1)*10;
+
   if(!logincheck(req,res))return;
 
 /*0530목요일 업뎃 라스트유저네임땜시*/
@@ -237,14 +245,18 @@ app.get('/view/phone/:model',function(req,res){
  (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
  on A.id=B.asset_id) K where model='`+model+`';`;*/
 
+ var search_qry=``;
+ if(search!=undefined && search!='')
+ 	search_qry=`and (model like '%${search}%' or sales like '%${search}%' or nick like '%${search}%' or label like '%${search}%' or imei like '%${search}%' or barcode like '%${search}%' or last_user_name like '%${search}%')`;
+
 
  var query=`select *,date_format(last_dt,'%Y-%m-%d %H:%i:%s') dt from ((select * from (select A.*,ifnull(B.state,'return') state from
  (select * from phone) A left join
  (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
- on A.id=B.asset_id) K left join (select id as uid,name as last_user_name from user) D on K.last_user=D.uid)) P where model='${model}';`;
+ on A.id=B.asset_id) K left join (select id as uid,name as last_user_name from user) D on K.last_user=D.uid)) P where model='${model}' ${search_qry} limit ${start},10;`;
 
 
-
+ console.log(query);
   var query2=`select * from (
 select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
 (select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
@@ -264,7 +276,7 @@ where model='`+model+`';`;
 			    if (!err){
 
 			    	model=model.toUpperCase();
-			    	res.render('view-phone.html',{user:req.session,rows:rows,model:model,rows2:rows2});
+			    	res.render('view-phone.html',{user:req.session,rows:rows,model:model,rows2:rows2,page:page,search:search});
 			    	//res.json(rows);
 			    }
 			    else res.send('fail');
@@ -284,17 +296,47 @@ app.get('/view/phone',function(req,res){
   if(!logincheck(req,res))return;
 
 
-  var query=`select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
+  var page=req.query.page;
+  var search=req.query.search;
+
+  if(page===undefined || page=='')page=1;
+  page=parseInt(page);
+  var start=(page-1)*10;
+
+
+  var search_qry=``;
+ if(search!=undefined && search!='')
+ 	search_qry=`where model like '%${search}%' or saleses like '%${search}%' or state like '%${search}%'`;
+
+
+  var query=`select * from (select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
 (select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
  left join
 (select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
-from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model`;
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model) K ${search_qry} limit ${start},10;`;
+
+
+var query2=`select count(*) as cnt from (select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
+(select model,group_concat(distinct(sales)) as saleses,count(*) as cnt from phone group by model) A
+ left join
+(select p.model,state,count(if(state='rental',state,null)) as rental_cnt 
+from rental r,phone p where r.id=(select max(id) from rental group by asset_id having asset_id=r.asset_id) and p.id=r.asset_id group by model) B on A.model=B.model) K ${search_qry};`;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
 	connection.query(query, function(err, rows, fields) {
 	    if (!err){
-	    	res.render('view-model-list.html',{user:req.session,rows:rows,model:''});
+
+	    	var connection2 = mysql.createConnection(config);
+			connection2.connect();
+			connection2.query(query2, function(err, rows2, fields) {
+			    if (!err){
+
+	    			res.render('view-model-list.html',{user:req.session,rows:rows,model:'',rows2:rows2,page:page,search:search});
+			    			}
+			    else res.send('fail');
+			});	
+			connection2.end();
 	    	//res.json(rows);
 	    }
 	    else res.send('fail');
@@ -935,17 +977,57 @@ app.get('/view/rental/pages/all',function(req,res){
   if(!logincheck(req,res))return;
 
 
-  var query=`select user.*,rental.*,phone.*,count(*) as cnt,
+  var page=req.query.page;
+  var search=req.query.search;
+
+  if(page===undefined || page=='')page=1;
+  page=parseInt(page);
+  var start=(page-1)*10;
+
+   var search_qry=``;
+   if(search!=undefined && search!='')
+ 	 search_qry=`where model like '%${search}%' or sales like '%${search}%' or name like '%${search}%' or label like '%${search}%' or email like '%${search}%' or models like '%${search}%' or saleses like '%${search}%'`;
+
+
+
+  var query1=`select * from(
+select user.name,user.email,rental.*,phone.model,phone.sales,phone.label,count(*) as cnt,
 group_concat(distinct(phone.label)) as labels,
 unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
 group_concat(distinct(sales)) as saleses
- from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc;`;
+ from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc)K ${search_qry} limit ${start},10;`;
 
-	var connection = mysql.createConnection(config);
+
+  var query2=`select count(*) as total from(
+select user.name,user.email,rental.*,phone.model,phone.sales,phone.label,count(*) as cnt,
+group_concat(distinct(phone.label)) as labels,
+unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
+group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc)K ${search_qry} limit ${start},10;`;
+
+ console.log(query1);
+  /*var query=`select user.*,rental.*,phone.*,count(*) as cnt,
+group_concat(distinct(phone.label)) as labels,
+unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models,
+group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id group by write_dt order by write_dt desc;`;*/
+
+
+ 	var connection = mysql.createConnection(config);
 	connection.connect();
-	connection.query(query, function(err, rows, fields) {
+	connection.query(query1, function(err, rows, fields) {
 	    if (!err){
-	    	res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'all',timeAgo:timeAgo});
+
+	    	var connection2 = mysql.createConnection(config);
+			connection2.connect();
+			connection2.query(query2, function(err, rows2, fields) {
+			    if (!err){
+
+						res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'all',timeAgo:timeAgo,rows2:rows2,page:page,search:search});
+				}
+			    else res.send('fail');
+			});	
+			connection2.end();
 	    }
 	    else res.send('fail');
 	});	
@@ -958,22 +1040,65 @@ app.get('/view/rental/pages/my',function(req,res){
 
   if(!logincheck(req,res))return;
 
+
+  var page=req.query.page;
+  var search=req.query.search;
+
+  if(page===undefined || page=='')page=1;
+  page=parseInt(page);
+  var start=(page-1)*10;
+
+   var search_qry=``;
+   if(search!=undefined && search!='')
+ 	 search_qry=`where model like '%${search}%' or sales like '%${search}%' or name like '%${search}%' or label like '%${search}%' or email like '%${search}%' or models like '%${search}%' or saleses like '%${search}%'`;
+
+
+
+var query1=`
+  select * from (
+select user.name,user.email,rental.*,phone.model,phone.sales,phone.label,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
+,group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ and email='${req.session.email}'
+  group by write_dt order by write_dt desc)K ${search_qry} limit ${start},10;`;
+
+  var query2=`
+  select count(*) as total from (
+select user.name,user.email,rental.*,phone.model,phone.sales,phone.label,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
+,group_concat(distinct(sales)) as saleses
+ from user,rental,phone where user_id=user.id and asset_id=phone.id 
+ and email='${req.session.email}'
+  group by write_dt order by write_dt desc)K ${search_qry} limit ${start},10;`;
+
+  /*
+
   var query2=`select user.*,rental.*,phone.*,count(*) as cnt,group_concat(distinct(phone.label)) as labels,unix_timestamp(write_dt) as ts, group_concat(distinct(model)) as models
 ,group_concat(distinct(sales)) as saleses
  from user,rental,phone where user_id=user.id and asset_id=phone.id 
  and email='`+req.session.email+`'
-  group by write_dt order by write_dt desc;`;
+  group by write_dt order by write_dt desc;`;*/
 
-	
-	var connection2 = mysql.createConnection(config);
-	connection2.connect();
-	connection2.query(query2, function(err, rows, fields) {
-		if (!err){
-			res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'my',timeAgo:timeAgo});
-		}
-		else res.send('fail');
-	});
-	connection2.end();
+	console.log(query1);
+
+	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query1, function(err, rows, fields) {
+	    if (!err){
+
+	    	var connection2 = mysql.createConnection(config);
+			connection2.connect();
+			connection2.query(query2, function(err, rows2, fields) {
+			    if (!err){
+
+						res.render('view-rental-pages.html',{user:req.session,rows:rows,menu:'my',timeAgo:timeAgo,rows2:rows2,page:page,search:search});
+				}
+			    else res.send('fail');
+			});	
+			connection2.end();
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
 	
 
 });
@@ -1078,6 +1203,9 @@ app.get('/view/request/rental',function(req,res){
   
 
   if(!logincheck(req,res))return;
+
+  res.render('view-request-rental.html',{user:req.session});
+  return;
 
 
   var query=`select A.*,ifnull(B.state,'return') state from
@@ -1264,21 +1392,112 @@ app.post('/api/find/asset',function(req,res){
 	connection.end();
 });
 
+app.post('/api/find/asset/all',function(req,res){
+	var uid=req.session.userid;
+
+
+
+  var page=req.query.page;
+  var search=req.query.search;
+
+  if(page===undefined || page=='')page=1;
+  page=parseInt(page);
+  var start=(page-1)*10;
+
+
+  var search_qry=``;
+  if(search!=undefined && search!='')
+ 	search_qry=`where model like '%${search}%' or sales like '%${search}%' or nick like '%${search}%' or label like '%${search}%' or imei like '%${search}%' or barcode like '%${search}%'`;
+
+
+	
+
+	var query1=`select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id ${search_qry} limit ${start},10;`;
+
+
+ var query2=`select count(*) as cnt from (
+select A.*,ifnull(B.state,'return') state from
+ (select * from phone) A left join
+ (select asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id)K ${search_qry};`;
+
+ 	//console.log(query);
+ 	var connection = mysql.createConnection(config);
+	connection.connect();
+	connection.query(query1, function(err, rows, fields) {
+	    if (!err){
+
+	    	var connection2 = mysql.createConnection(config);
+			connection2.connect();
+			connection2.query(query2, function(err, rows2, fields) {
+			    if (!err){
+			    		var obj={rows:rows,rows2:rows2,page:page,search:search};
+
+						res.json(obj);
+				}
+			    else res.send('fail');
+			});	
+			connection2.end();
+	    }
+	    else res.send('fail');
+	});	
+	connection.end();
+});
+
 
 app.post('/api/find/asset/user',function(req,res){
 	var uid=req.session.userid;
 	var state=req.body.state;
 
-	var query=`select A.*,ifnull(B.state,'return') state,B.user_id from
+
+	var page=req.query.page;
+  var search=req.query.search;
+
+  if(page===undefined || page=='')page=1;
+  page=parseInt(page);
+  var start=(page-1)*10;
+
+
+  var search_qry=``;
+  if(search!=undefined && search!='')
+ 	search_qry=`where model like '%${search}%' or sales like '%${search}%' or nick like '%${search}%' or label like '%${search}%' or imei like '%${search}%' or barcode like '%${search}%'`;
+
+
+ 	var query1=`select * from (select A.*,ifnull(B.state,'return') state,B.user_id from
  (select * from phone) A left join
  (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
- on A.id=B.asset_id where state='`+state+`' and user_id=`+uid+`;`;
+ on A.id=B.asset_id where state='${state}' and user_id=${uid})K ${search_qry} limit ${start},10;`;
+
+ var query2=`select count(*) as cnt from (select A.*,ifnull(B.state,'return') state,B.user_id from
+ (select * from phone) A left join
+ (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id where state='${state}' and user_id=${uid})K ${search_qry} limit ${start},10;`;
+
+	/*var query1=`select A.*,ifnull(B.state,'return') state,B.user_id from
+ (select * from phone) A left join
+ (select user_id,asset_id,state from rental r where id=(select max(id) from rental group by asset_id having asset_id=r.asset_id)) B
+ on A.id=B.asset_id where state='`+state+`' and user_id=`+uid+`;`;*/
  	//console.log(query);
+ 	console.log(query1);
  	var connection = mysql.createConnection(config);
 	connection.connect();
-	connection.query(query, function(err, rows, fields) {
+	connection.query(query1, function(err, rows, fields) {
 	    if (!err){
-	    	res.json(rows);
+
+	    	var connection2 = mysql.createConnection(config);
+			connection2.connect();
+			connection2.query(query2, function(err, rows2, fields) {
+			    if (!err){
+			    		var obj={rows:rows,rows2:rows2,page:page,search:search};
+
+						res.json(obj);
+				}
+			    else res.send('fail');
+			});	
+			connection2.end();
 	    }
 	    else res.send('fail');
 	});	

@@ -31,7 +31,8 @@
                                         </p>
 
 
-                                        <table id="datatable-buttons" class="table table-striped dt-responsive nowrap">
+                                        <table id="datatable-buttons2" class="table table-striped dt-responsive nowrap">
+                                            
                                             <thead>
                                                 <tr>
                                                     <th>번호</th>
@@ -64,7 +65,8 @@
 
                                                 <% for(var i=0;i<rows.length;i++) { %>
                                                 <tr>
-                                                    <td><%=(i+1)%></td>
+                                                    <!--<td><%=(i+1)%></td>//-->
+                                                    <td><%=((page-1)*10+(i+1))%></td>
                                                     <td>
                                                          <div class="custom-control custom-checkbox">
                                                             <input type="checkbox" class="custom-control-input" id="check-<%=rows[i].id%>">
@@ -113,6 +115,86 @@
 <% include base-bottom.html %>
 <script>
     egg_type=6;
+
+
+    var drawonce=true;
+    window.onload=init();
+    function init(){
+        var a=$("#datatable-buttons2").DataTable(
+        {
+            lengthChange:!1,buttons:["copy","print"],
+            "drawCallback":function(settings){
+                drawpage(<%=rows2[0].cnt%>,<%=page%>);
+                drawinfo(<%=rows2[0].cnt%>,<%=page%>);
+                if(drawonce){
+                    drawsearch();
+                    drawonce=false;
+                }
+            },
+        });
+
+    }
+
+    function drawsearch()
+    {
+        var btn=`&nbsp;<button class='btn btn-info' onclick='findstr()'>검색</button>`;
+        $('#datatable-buttons2_filter').append(btn);
+    }
+
+    function findstr()
+    {
+        var str=$('input[type="search"]').val();
+        location.href='?search='+str;
+    }
+
+    function drawpage(total,curpage)
+    {
+        var torg=total;
+        total=Math.floor(total/10);
+        if(torg%10!=0)total=total+1;
+        $('#datatable-buttons2_paginate').html('');
+        var prevpage=curpage-1;
+        if(prevpage<=0)prevpage=1;
+        var next=curpage+1;
+        if(next>total)next=total;
+        var s=`<ul class="pagination"><li class="paginate_button page-item previous" id="datatable-buttons2_previous"><a href="javascript:gopage(${prevpage},'<%=search%>');" aria-controls="datatable-buttons2" data-dt-idx="0" tabindex="0" class="page-link">Previous</a></li>`;
+        var start=curpage-4;
+        if(start<=0)start=1;
+        if(start>1)
+        {
+          s=s+`<li class="paginate_button page-item"><a href="javascript:gopage(1,'<%=search%>');" aria-controls="datatable-buttons2" data-dt-idx="1" tabindex="0" class="page-link">1</a></li>&nbsp;...&nbsp;`;          
+        }
+        var end=curpage+4;
+        if(end>total)end=total;
+        for(var i=start;i<=end;i++){
+            var act='';
+            if(i==curpage)act='active';
+            s=s+`<li class="paginate_button page-item ${act}"><a href="javascript:gopage(${i},'<%=search%>');" aria-controls="datatable-buttons2" data-dt-idx="1" tabindex="0" class="page-link">${i}</a></li>`;
+        }
+        if(end<total)
+        {
+          s=s+`&nbsp;...&nbsp;<li class="paginate_button page-item"><a href="javascript:gopage(${total},'<%=search%>');" aria-controls="datatable-buttons2" data-dt-idx="1" tabindex="0" class="page-link">${total}</a></li>`;   
+        }
+        s=s+`<li class="paginate_button page-item next" id="datatable-buttons2_next"><a href="javascript:gopage(${next},'<%=search%>');" aria-controls="datatable-buttons2" data-dt-idx="5" tabindex="0" class="page-link">Next</a></li></ul>`;
+        $('#datatable-buttons2_paginate').html(s);
+    }
+
+    function drawinfo(total,curpage)
+    {
+        var stri=(curpage-1)*10+1;
+        var endi=stri+9;
+        var k=`Showing ${stri} to ${endi} of ${total} entries`;
+        $('#datatable-buttons2_info').html(k);
+    }
+
+    function gopage(idx,search)
+    {
+        var ref=`?page=${idx}`;
+        if(search!=undefined && search!='')
+            ref=ref+`&search=${search}`;
+        location.href=ref;
+    }
+
 
     function assetupdate(id,model,nick,sales,label,barcode,imei,device_state,to_email,from_email,device_comment) {
         $('#aid').val(id);
