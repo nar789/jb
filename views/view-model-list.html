@@ -3,6 +3,16 @@
       <% include addasset-modal.html %>
       <% include excel-text-modal.html %>
       <% include multi-model-updateasset-modal.html %>
+      <script type="text/javascript">
+          function get_rental_info(total,model){
+            
+                $.get('/api/view/get-rental-cnt?model='+model,(d,e)=>{
+                    $(`#${model}_rental_cnt_label`).html(d[0].rental_cnt); 
+                    var return_cnt=total-parseInt(d[0].rental_cnt);
+                    $(`#${model}_return_cnt_label`).html(return_cnt); 
+                });
+            }
+      </script>
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box">
@@ -73,11 +83,14 @@
                                                     <td><%=rows[i].model%></td>
                                                     <td><%=rows[i].saleses%></td>
                                                     <td><%=rows[i].cnt%>대</td>
-                                                    <td><b style="color:#fa5c7c;"><%=rows[i].rental_cnt%>대</b></td>
-                                                    <td><b style="color:#0acf97;"><%=rows[i].return_cnt%>대</b></td>
+                                                    <td><b style="color:#fa5c7c;" id='<%=rows[i].model%>_rental_cnt_label'>_</b></td>
+                                                    <!--<td><b style="color:#fa5c7c;"><%=rows[i].rental_cnt%>대</b></td>//-->
+                                                    <td><b style="color:#0acf97;" id='<%=rows[i].model%>_return_cnt_label'>_</b></td>
+                                                    <!--<td><b style="color:#0acf97;"><%=rows[i].return_cnt%>대</b></td>//-->
                                                     <td>
                                                         <a href='/view/phone/<%=rows[i].model%>'><button class='btn btn-primary' >자세히 보기</button></a>
                                                     </td>
+                                                    <script type="text/javascript">get_rental_info(<%=rows[i].cnt%>,'<%=rows[i].model%>');</script>
                                                 </tr>
                                                 <% } %>
                                             </tbody>

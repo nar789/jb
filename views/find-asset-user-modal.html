@@ -54,7 +54,46 @@
                                             </tbody>
                                         </table>`);
     }
-    function asset_user_init(d) {
+
+    function get_rental_state(r){
+        $.get('/api/view/get-rental-state?id='+r.id,(d,e)=>{
+            if(d!=undefined && d.length!=0)
+            {
+                if(d[0].state=='rental')
+                    $(`#${r.id}_rental_state_label`).css('color','#fa5c7c').html('대여중');
+                else
+                    $(`#${r.id}_rental_state_label`).html('대여가능');
+                r.state=d[0].state;
+                $(`#sel-user-btn-${r.id}`).attr('onclick',`sel(this,'${r.id}','${r.model}','${r.sales}','${r.nick}','${r.label}','${r.state}')`);
+            }
+        });
+    }
+
+    function get_phone_info(r){
+
+        $.get('/api/view/get-phone-info?id='+r.id,(d,e)=>{
+            if(d!=undefined && d.length!=0)
+            {
+                r.model=d[0].model;
+                r.sales=d[0].sales;
+                r.nick=d[0].nick;
+                r.label=d[0].label;
+                $(`#${r.id}_model_label`).html(r.model);
+                $(`#${r.id}_sales_label`).html(r.sales);
+                $(`#${r.id}_nick_label`).html(r.nick);
+                $(`#${r.id}_label_label`).html(r.label);
+                $(`#sel-user-btn-${r.id}`).attr('onclick',`sel(this,'${r.id}','${r.model}','${r.sales}','${r.nick}','${r.label}','${r.state}')`);
+            }
+        });
+
+    }
+
+    var config_type='';
+    function asset_user_init(d,type) {
+        if(type===undefined)
+            type=config_type;
+        else
+            config_type=type;
         init_precondition();
         var c='';
         var r=d.rows;
@@ -63,15 +102,16 @@
             var num=i+1;
             c=c+`<tr>
                     <td>`+((d.page-1)*10+(i+1))+`</td>
-                    <td>`+r[i].model+`</td>
-                    <td>`+r[i].sales+`</td>
-                    <td>`+r[i].nick+`</td>
-                    <td>`+r[i].label+`</td>
+                    <td id='${r[i].id}_model_label'>`+r[i].model+`</td>
+                    <td id='${r[i].id}_sales_label'>`+r[i].sales+`</td>
+                    <td id='${r[i].id}_nick_label'>`+r[i].nick+`</td>
+                    <td id='${r[i].id}_label_label'>`+r[i].label+`</td>
                     <td >`;
                         if(r[i].state=='rental') {
-                            c=c+`<b style="color:#fa5c7c;">대여중</b>`;
+                            c=c+`<b style="color:#fa5c7c;" id='${r[i].id}_rental_state_label'>대여중</b>`; 
                         } else {
-                            c=c+`<b style="color:#0acf97;">대여가능</b>`;
+                            r[i].state='return';
+                            c=c+`<b style="color:#0acf97;" id='${r[i].id}_rental_state_label'>대여가능</b>`;
                         }
                         
                     c=c+`</td>
@@ -81,15 +121,23 @@
                     c=c+`
                     </td>
                   </tr>`;
+                if(type=='all')
+                    get_rental_state(r[i]);
+                else if(type=='my')
+                    get_phone_info(r[i]);
         }
         $('#tbody-find-asset-user').html(c);
         init(d);
     }
 
 
+
+
      var drawonce=true;
      var reqconfig;
      var modal_state_my=false;
+
+
     function init(d){
         reqconfig=d;
         

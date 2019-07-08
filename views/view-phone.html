@@ -3,6 +3,47 @@
       <% include addasset-modal.html %>
       <% include updateasset-modal.html %>
       <% include multi-updateasset-modal.html %>
+
+      <script type="text/javascript">
+        function get_rental_state(asset_id){
+            $.get('/api/view/get-rental-state?id='+asset_id,(d,e)=>{
+                var c=`<b style="color:#0acf97;">대여가능</b>`;
+                if(d!=undefined && d.length!=0 )
+                {
+                    if(d[0].state=='rental')
+                        c=`<b style="color:#fa5c7c;">대여중</b>`;
+                }
+                
+                $(`#${asset_id}_rental_state_label`).html(c);
+            });
+        }
+
+        function get_username(asset_id,user_id){
+            $.get('/api/view/get-username?id='+user_id,(d,e)=>{
+                if(d!=undefined && d.length!=0 )
+                    $(`#${asset_id}_username_label`).html(d[0].name);
+                
+            });   
+        }
+
+        function get_rental_cnt(model){
+            $.get('/api/view/get-rental-cnt?model='+model,(d,e)=>{
+                var cnt=d[0].rental_cnt | 0;
+                var label=`대여중 ${cnt}대`;
+                $('#rental_cnt_label').html(label);
+
+                $.get('/api/view/get-total?model='+model,(d,e)=>{
+                    var total=d[0].total | 0;
+                    var retcnt=parseInt(total)-parseInt(cnt);
+                    var label2=`대여가능 ${retcnt}대`;
+                    $('#return_cnt_label').html(label2);
+                });
+            });
+        }
+
+        get_rental_cnt('<%=rows[0].model%>');
+
+      </script>
                         <div class="row">
                             <div class="col-12">
                                 <div class="page-title-box">
@@ -23,8 +64,8 @@
                                         
                                         <h2 style="display: inline-block;" class="mr-3"><%=model%></h2>
                                         <h5 style="display: inline-block;">
-                                            <b style="color:#fa5c7c;">대여중 <%=rows2[0].rental_cnt%>대</b>
-                                            <b style="color:#0acf97;">대여가능 <%=rows2[0].return_cnt%>대</b>
+                                            <b style="color:#fa5c7c;" id='rental_cnt_label'>대여중 _대</b>
+                                            <b style="color:#0acf97;" id='return_cnt_label'>대여가능 _대</b>
                                         </h5>
                                         <p class="text-muted font-14 mb-4">
                                             <%=rows2[0].saleses%>
@@ -87,21 +128,19 @@
                                                     <% } %>
                                                     <td><%=rows[i].label%></td>
                                                     <td><%=rows[i].sales%></td>
-                                                    <td>
-                                                        <% if(rows[i].state=='rental') { %>
-                                                            <b style="color:#fa5c7c;">대여중</b>
-                                                        <% } else { %>
-                                                            <b style="color:#0acf97;">대여가능</b>
-                                                        <% } %>
-                                                    </td>
+                                                    <td id='<%=rows[i].id%>_rental_state_label'>_</td>
                                                     <td><a href='/view/history/<%=rows[i].id%>'><button class='btn btn-primary'>대여정보 보기</button></a></td>
                                                     <td><%=rows[i].device_state%></td>
                                                     <td><%=rows[i].to_email%></td>
                                                     <td><%=rows[i].from_email%></td>
                                                     <td><%=rows[i].device_comment%></td>
-                                                    <td><a href='/view/history/user/<%=rows[i].uid%>'><%=rows[i].last_user_name%></a></td>
+                                                    <td><a href='/view/history/user/<%=rows[i].last_user%>' id='<%=rows[i].id%>_username_label'>_</a></td>
                                                     <td onclick="javascript:jbalert('시간','<%=rows[i].dt%>');"><a href='javascript:void(0);'><%=rows[i].dt%></a></td>
                                                     <td><button class='btn btn-info' onclick="assetupdate(<%=rows[i].id%>,'<%=rows[i].model%>','<%=rows[i].nick%>','<%=rows[i].sales%>','<%=rows[i].label%>','<%=rows[i].barcode%>','<%=rows[i].imei%>','<%=rows[i].device_state%>','<%=rows[i].to_email%>','<%=rows[i].from_email%>','<%=rows[i].device_comment%>')">시료정보 편집</button></td>
+                                                    <script type="text/javascript">
+                                                        get_rental_state(<%=rows[i].id%>);
+                                                        get_username(<%=rows[i].id%>,<%=rows[i].last_user%>);
+                                                    </script>
                                                 </tr>
                                                 <% } %>
                                             </tbody>

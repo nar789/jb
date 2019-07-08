@@ -255,7 +255,7 @@
             //alert(d);
             drawonce=true;
             modal_state_my=false;
-            asset_user_init(d);
+            asset_user_init(d,'all');
             $('#find-asset-user-modal').modal('show');
             $('#find-asset-user-modal').on('shown.bs.modal',(e)=>{
                 
@@ -272,7 +272,7 @@
             //alert(d); 
             drawonce=true;
             modal_state_my=true;
-            asset_user_init(d);
+            asset_user_init(d,'my');
             $('#find-asset-user-modal').modal('show');
             $('#find-asset-user-modal').on('shown.bs.modal',(e)=>{
                 
