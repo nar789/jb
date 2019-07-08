@@ -247,7 +247,7 @@ app.get('/view/phone/:model',function(req,res){
 
  var search_qry=``;
  if(search!=undefined && search!='')
- 	search_qry=`and (model like '%${search}%' or sales like '%${search}%' or nick like '%${search}%' or label like '%${search}%' or imei like '%${search}%' or barcode like '%${search}%' or last_user_name like '%${search}%')`;
+ 	search_qry=`and (model like '%${search}%' or sales like '%${search}%' or nick like '%${search}%' or label like '%${search}%' or imei like '%${search}%' or barcode like '%${search}%')`;
 
 /*
  var query=`select *,date_format(last_dt,'%Y-%m-%d %H:%i:%s') dt from ((select * from (select A.*,ifnull(B.state,'return') state from
@@ -268,7 +268,7 @@ where model='`+model+`';`;
 
 	var query=`select *,date_format(last_dt,'%Y-%m-%d %H:%i:%s') dt from phone where model='${model}' ${search_qry} limit ${start},10`; 
 
-	var query2=`select count(*) cnt from (select * from phone where model='${model}' ${search_qry})K`;
+	var query2=`select count(*) cnt from (select * from phone where model='${model}' ${search_qry})K `;
 
 	var connection = mysql.createConnection(config);
 	connection.connect();
@@ -400,10 +400,12 @@ app.get('/view/phone',function(req,res){
 
   var search_qry=``;
  if(search!=undefined && search!='')
- 	search_qry=`where model like '%${search}%' or saleses like '%${search}%' or state like '%${search}%'`;
+ 	search_qry=`where model like '%${search}%' or saleses like '%${search}%'`;
 
- var query=`select model,group_concat(distinct(sales)) saleses,count(*) cnt from phone group by model ${search_qry} limit ${start},10;`;
- var query2=`select count(*) cnt from (select model,group_concat(sales) saleses,count(*) cnt from phone group by model ${search_qry})K;`;
+ var query=`select * from (select model,group_concat(distinct(sales)) saleses,count(*) cnt from phone group by model)K ${search_qry} limit ${start},10;`;
+ var query2=`select count(*) cnt from (select model,group_concat(sales) saleses,count(*) cnt from phone group by model )K ${search_qry};`;
+
+ console.log(query);
 
 /*
   var query=`select * from (select A.model model,A.saleses saleses,ifnull(B.state,'return') state,A.cnt cnt,ifnull(B.rental_cnt,0) rental_cnt,(cnt-ifnull(rental_cnt,0)) return_cnt from 
