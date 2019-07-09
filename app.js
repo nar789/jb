@@ -347,19 +347,50 @@ app.get('/api/view/get-username',function(req,res){
 
 app.get('/api/view/get-rental-cnt',function(req,res){
 	var model=req.query.model;
+	/*
 	var query=`select count(*) rental_cnt from (
 select asset_id,state from rental r 
 where id=(select max(id) from rental where asset_id=r.asset_id) 
 and 
-r.asset_id in (select id from phone where model='${model}'))K where K.state='rental';`;
+r.asset_id in (select id from phone where model='${model}'))K where K.state='rental';`;*/
+
+	var query=`select id from phone where model='${model}'`;
+	var query2=`select asset_id,state from rental order by id asc`;
 	
 	var connection = mysql.createConnection(config);
 	connection.connect();
 	connection.query(query, function(err, rows, fields) {
 	    if (!err){
 
-			res.json(rows);
-	    			}
+
+	    	var connection2 = mysql.createConnection(config);
+			connection2.connect();
+			connection2.query(query2, function(err, rows2, fields) {
+			    if (!err){
+
+			    	var assets={};
+			    	for(var i=0;i<rows2.length;i++)
+			    	{
+			    		assets[rows2[i].asset_id]={};
+			    		assets[rows2[i].asset_id].state=rows2[i].state;
+			    	}
+			    	var rental_cnt=0;
+			    	for(var i=0;i<rows.length;i++)
+			    	{
+			    		if(assets[rows[i].id]===undefined || assets[rows[i].id].state===undefined)continue;
+			    		else if(assets[rows[i].id].state=='rental')rental_cnt=rental_cnt+1;
+			    	}
+
+			    	var ret=[];
+			    	ret.push({rental_cnt:rental_cnt});
+			    	res.json(ret);
+
+			    }
+			    else res.send('fail');
+			});	
+			connection2.end();
+			
+	    }
 	    else res.send('fail');
 	});	
 	connection.end();
@@ -1568,8 +1599,8 @@ app.post('/api/find/asset/user',function(req,res){
 
 //search not working.
 
- var query1=`select asset_id id,state from rental r where user_id=${uid} and id=(select max(id) from rental where asset_id=r.asset_id) and state='${state}' limit ${start},10;`;
- var query2=`select count(*) cnt from (select asset_id from rental r where user_id=${uid} and id=(select max(id) from rental where asset_id=r.asset_id) and state='${state}')K`;
+ var query1=`select asset_id,user_id,state from rental order by id asc;`;
+ //var query2=`select count(*) cnt from (select asset_id from rental r where user_id=${uid} and id=(select max(id) from rental where asset_id=r.asset_id) and state='${state}')K`;
 
 
  /*
@@ -1596,17 +1627,41 @@ app.post('/api/find/asset/user',function(req,res){
 	connection.query(query1, function(err, rows, fields) {
 	    if (!err){
 
-	    	var connection2 = mysql.createConnection(config);
-			connection2.connect();
-			connection2.query(query2, function(err, rows2, fields) {
-			    if (!err){
-			    		var obj={rows:rows,rows2:rows2,page:page,search:search};
+	    	var assets={};
 
-						res.json(obj);
-				}
-			    else res.send('fail');
-			});	
-			connection2.end();
+	    	for(var i=0;i<rows.length;i++){
+	    		assets[rows[i].asset_id]={};
+	    		assets[rows[i].asset_id].user_id=rows[i].user_id;
+	    		assets[rows[i].asset_id].state=rows[i].state;
+	    	}
+	    	var myassets=[];
+	    	var keys=Object.keys(assets);
+	    	for(var i=0;i<keys.length;i++)
+	    	{
+	    		if(uid!=assets[keys[i]].user_id)continue;
+	    		if(assets[keys[i]].state!='rental')continue;
+	    		var obj={};
+	    		obj.state=assets[keys[i]].state;
+	    		obj.id=keys[i];
+	    		obj.model='_';
+	    		obj.sales='_';
+	    		obj.nick='_';
+	    		obj.label='_';
+	    		myassets.push(obj);
+	    	}
+	    	var pagelist=[];
+	    	console.log(myassets.length);
+	    	for(var i=(page-1)*10;i<page*10;i++)
+	    	{
+	    		if(!myassets.length)break;
+	    		pagelist.push(myassets[i]);
+	    		if(i==myassets.length-1)break;
+	    	}
+	    	var rows2=[];
+	    	rows2.push({cnt:myassets.length});
+	    	var obj={rows:pagelist,rows2:rows2,page:page,search:search};
+
+			res.json(obj);
 	    }
 	    else res.send('fail');
 	});	
