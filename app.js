@@ -709,6 +709,26 @@ app.post('/api/cli/getidbynoimei',function(req,res){
 });
 
 
+app.get('/api/phone/change-model',function(req,res){
+	var amodel=req.query.a;
+	var bmodel=req.query.b;
+	var dest=req.query.dest;
+	console.log(amodel+' '+bmodel+' '+dest);
+	var query=`update phone set model='${dest}' where model='${amodel}' or model='${bmodel}'`;
+	console.log(query);
+	var connection = mysql.createConnection(config);
+	    connection.connect();
+	    connection.query(query, function(err, rows, fields) {
+		    if (!err){
+		    	res.send('success');
+		    }
+		    else res.send('fail');
+		});	
+	    connection.end();
+
+});
+
+
 
 
 app.post('/api/phone/crud',function(req,res){
