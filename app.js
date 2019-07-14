@@ -3,6 +3,7 @@ var express = require('express');
 var app = require('express')();
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
+//var config = require('./config.my.dev');//DEBUG
 var config = require('./config.my');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
@@ -19,7 +20,7 @@ var upload = multer({ dest: './uploads' });
 
 var XLSX = require('xlsx');
 
-var randomColor = require('randomColor');
+var randomColor = require('randomcolor');
 
 
 app.set('view engine', 'ejs');
@@ -269,7 +270,7 @@ where model='`+model+`';`;
 	var query=`select *,date_format(last_dt,'%Y-%m-%d %H:%i:%s') dt from phone where model='${model}' ${search_qry} limit ${start},10`; 
 
 	var query2=`select count(*) cnt from (select * from phone where model='${model}' ${search_qry})K `;
-
+	
 	var connection = mysql.createConnection(config);
 	connection.connect();
 	connection.query(query, function(err, rows, fields) {

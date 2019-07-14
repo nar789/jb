@@ -40,8 +40,9 @@
                 });
             });
         }
-
-        get_rental_cnt('<%=rows[0].model%>');
+        <% if(rows.length!=0){ %>
+            get_rental_cnt('<%=rows[0].model%>');
+        <% } %>
 
       </script>
                         <div class="row">
